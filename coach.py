@@ -363,3 +363,15 @@ if __name__ == "__main__":
             print("❌ Update failed.")
     else:
         print("Token generation failed.")
+
+# 홈페이지용 대문 파일(index.html) 강제 생성 규칙 추가
+import os
+if os.path.exists("README.md"):
+    with open("README.md", "r", encoding="utf-8") as f:
+        readme_content = f.read()
+    
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write("<html><head><meta charset=\"utf-8\"><title>Project 330 Dashboard</title><style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:20px;background:#f9f9f9;}pre{background:#fff;padding:15px;border-radius:8px;border:1px solid #ddd;overflow-x:auto;}img{max-width:100%;}</style></head><body><pre>")
+        f.write(readme_content)
+        f.write("</pre></body></html>")
+
