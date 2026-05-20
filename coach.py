@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta, timezone
 import os
-import requests
-from datetime import datetime
 
-# 1. 가상의 스트라바 데이터 및 차트 URL 생성 (회원님의 기존 로직 대체)
-# (이 부분은 기존에 사용하시던 Strava API 및 데이터 로직이 그대로 돌게 됩니다.)
-now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# 1. 가상 서버가 전 세계 어디에 있든 칼같이 한국 시간(KST)으로 고정
+kst = timezone(timedelta(hours=9))
+now_dt = datetime.now(timezone.utc).astimezone(kst)
+now = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+today_date = now_dt.strftime("%Y-%m-%d")
 
 readme_text = f"""# 🏃‍♂️ Project 330
 > **Last Sync:** {now}
@@ -21,7 +22,7 @@ readme_text = f"""# 🏃‍♂️ Project 330
 
 ---
 
-## 📊 Daily Running ({now.split()[0]})
+## 📊 Daily Running ({today_date})
 * **Name:** No Run Today
 * **Distance:** 💤 Rest Day
 * **Pace(avg.):** -
@@ -50,11 +51,9 @@ readme_text = f"""# 🏃‍♂️ Project 330
   * Split Squat 4kg (8 reps L/R x 3 sets)
 """
 
-# 2. 마크다운 저장
 with open("README.md", "w", encoding="utf-8") as f:
     f.write(readme_text)
 
-# 3. 브라우저용 깔끔한 정식 HTML 홈페이지 파일 생성
 html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -89,7 +88,7 @@ html_content = f"""<!DOCTYPE html>
         <p>🟠🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤 <strong>6.6</strong> / 50 km (13%)</p>
         <div class="chart-box"><img src="https://quickchart.io/chart?c=%7B%27type%27%3A%20%27bar%27%2C%20%27data%27%3A%20%7B%27labels%27%3A%20%5B%27Mon%27%2C%20%27Tue%27%2C%20%27Wed%27%2C%20%27Thu%27%2C%20%27Fri%27%2C%20%27Sat%27%2C%20%27Sun%27%5D%2C%20%27datasets%27%3A%20%5B%7B%27data%27%3A%20%5B0.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%27backgroundColor%27%3A%20%27%23FC4C02%27%2C%20%27borderRadius%27%3A%205%2C%20%27datalabels%27%3A%20%7B%27display%27%3A%20true%2C%20%27align%27%3A%20%27end%27%2C%20%27anchor%27%3A%20%27end%27%2C%20%27color%27%3A%20%27%23FC4C02%27%2C%20%27font%27%3A%20%7B%27weight%27%3A%20%27bold%27%2C%20%27size%27%3A%209%7D%7D%7D%5D%7D%2C%20%27options%27%3A%20%7B%27title%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27legend%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27scales%27%3A%20%7B%27yAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27beginAtZero%27%3A%20true%2C%20%27max%27%3A%2020%2C%20%27stepSize%27%3A%205%2C%20%27fontColor%27%3A%20%27%23888888%27%7D%2C%20%27gridLines%27%3A%20%7B%27color%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.2%29%27%2C%20%27zeroLineColor%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.4%29%27%7D%7D%5D%2C%20%27xAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27fontColor%27%3A%20%27%23888888%27%2C%20%27fontSize%27%3A%2011%2C%20%27fontStyle%27%3A%20%27bold%27%7D%2C%20%27gridLines%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27plugins%27%3A%20%7B%27datalabels%27%3A%20false%7D%7D%7D&format=svg" /></div>
 
-        <h2>📊 Daily Running ({now.split()[0]})</h2>
+        <h2>📊 Daily Running ({today_date})</h2>
         <ul>
             <li><strong>Name:</strong> No Run Today</li>
             <li><strong>Distance:</strong> 💤 Rest Day</li>
@@ -124,3 +123,4 @@ html_content = f"""<!DOCTYPE html>
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
+print("File successfully saved with KST timezone support.")
