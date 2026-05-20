@@ -29,5 +29,5 @@ jobs:
         STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
         STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
-        GITHUB_REPO: ${{ secrets.GITHUB_REPO }}
+        GITHUB_REPO: ${{ secrets.RUNNING_REPO_NAME }}
       run: python coach.py
