@@ -34,9 +34,37 @@ jobs:
         STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.PERSONAL_GITHUB_TOKEN }}
         GITHUB_REPO: ${{ secrets.RUNNING_REPO_NAME }}
+      run: python coach.py
+
+    - name: Generate Premium Dashboard HTML
       run: |
-        python coach.py
-        python generate_html.py
+        if [ -f "README.md" ]; then
+          # 1. 주소창을 깨뜨리는 인코딩 찌꺼기 문자열 완전 제거
+          sed -i 's/---%0A\*This.*//g' README.md
+          sed -i 's/---&amp;.*//g' README.md
+          
+          # 2. 다크 모드 테마 뼈대 만들기
+          echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Project 330 Dashboard</title><style>body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background-color:#121212;color:#e0e0e0;margin:0;padding:16px;line-height:1.6;} .container{max-width:500px;margin:0 auto;background:#1e1e1e;padding:20px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.5);} h1{color:#FC4C02;text-align:center;font-size:22px;margin-bottom:20px;} h2{color:#fff;border-bottom:1px solid #333;padding-bottom:8px;font-size:16px;margin-top:25px;} h3{color:#FC4C02;font-size:14px;margin-top:15px;} blockquote{background:#2a2a2a;border-left:4px solid #FC4C02;margin:15px 0;padding:12px;border-radius:4px;font-style:italic;} hr{border:0;height:1px;background:#333;margin:20px 0;} .chart-box{text-align:center;margin:15px 0;background:#252525;padding:10px;border-radius:12px;} .chart-box img{max-width:100%;height:auto;} .todo-item{display:flex;align-items:flex-start;margin-bottom:12px;background:#252525;padding:10px;border-radius:8px;} .todo-item input{margin-top:4px;margin-right:10px;transform:scale(1.2);accent-color:#FC4C02;} .todo-item small{color:#888;} footer{text-align:center;font-size:11px;color:#555;margin-top:30px;}</style></head><body><div class="container">' > index.html
+          
+          # 3. 마크다운 내용을 HTML 태그로 안전 변환하여 조립
+          cat README.md | \
+            sed 's/^# 🏃‍♂️ \(.*\)/<h1>🏃‍♂️ \1<\/h1>/g' | \
+            sed 's/^## 📈 \(.*\)/<h2>📈 \1<\/h2>/g' | \
+            sed 's/^## ⏱️ \(.*\)/<h2>⏱️ \1<\/h2>/g' | \
+            sed 's/^## 📊 \(.*\)/<h2>📊 \1<\/h2>/g' | \
+            sed 's/^## 🛠️ \(.*\)/<h2>🛠️ \1<\/h2>/g' | \
+            sed 's/^### 📋 \(.*\)/<h3>📋 \1<\/h3>/g' | \
+            sed 's/^### 🔮 \(.*\)/<h3>🔮 \1<\/h3>/g' | \
+            sed 's/^### 🎯 \(.*\)/<h3>🎯 \1<\/h3>/g' | \
+            sed 's/^### 🔲 \(.*\)/<h3>🔲 \1<\/h3>/g' | \
+            sed 's/^> \*\*\(.*\)\*\*\(.*\)/<blockquote><strong>\1<\/strong>\2<\/blockquote>/g' | \
+            sed 's/^> \(.*\)/<blockquote>\1<\/blockquote>/g' | \
+            sed 's/!\[.*\](\(.*\))/<div class="chart-box"><img src="\1" \/><\/div>/g' | \
+            sed 's/- \[\s\] \(.*\) -> \(.*\)/<div class="todo-item"><input type="checkbox"><div><strong>\1<\/strong><br><small>\2<\/small><\/div><\/div>/g' | \
+            sed 's/\*\*\([^*]*\)\*\*/<strong>\1<\/strong>/g' >> index.html
+          
+          echo '<footer>Automated via Strava API & QuickChart API</footer></div></body></html>' >> index.html
+        fi
 
     - name: Upload Artifact
       uses: actions/upload-pages-artifact@v3
