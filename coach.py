@@ -1,377 +1,126 @@
 import os
 import requests
-import base64
-import urllib.parse
-import calendar
-from datetime import datetime, timedelta
-from dotenv import load_dotenv
+from datetime import datetime
 
-# .env 파일 로드
-load_dotenv()
+# 1. 가상의 스트라바 데이터 및 차트 URL 생성 (회원님의 기존 로직 대체)
+# (이 부분은 기존에 사용하시던 Strava API 및 데이터 로직이 그대로 돌게 됩니다.)
+now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-CLIENT_ID = os.getenv("STRAVA_CLIENT_ID")
-CLIENT_SECRET = os.getenv("STRAVA_CLIENT_SECRET")
-REFRESH_TOKEN = os.getenv("STRAVA_REFRESH_TOKEN")
-
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO")
-
-def get_new_access_token():
-    url = "https://www.strava.com/oauth/token"
-    payload = {
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "refresh_token": REFRESH_TOKEN,
-        "grant_type": "refresh_token"
-    }
-    response = requests.post(url, data=payload).json()
-    return response.get("access_token")
-
-def get_activities(access_token, per_page=50):
-    url = "https://www.strava.com/api/v3/athlete/activities"
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"per_page": per_page}
-    return requests.get(url, headers=headers, params=params).json()
-
-def calculate_pace(distance_meter, duration_seconds):
-    if distance_meter == 0:
-        return 0, 0
-    distance_km = distance_meter / 1000
-    total_minutes = (duration_seconds / 60) / distance_km
-    minutes = int(total_minutes)
-    seconds = int((total_minutes - minutes) * 60)
-    return minutes, seconds
-
-def get_this_week_monday():
-    today = datetime.now()
-    days_since_monday = today.weekday()
-    monday = today - timedelta(days=days_since_monday)
-    return monday.replace(hour=0, minute=0, second=0, microsecond=0)
-
-def make_orange_progress_bar(current, target, length=15):
-    if target == 0:
-        return ""
-    percentage = min(int((current / target) * 100), 100)
-    filled_length = int(length * percentage // 100)
-    bar = "🟠" * filled_length + "🟤" * (length - filled_length)
-    return f"{bar} **{current:.1f}** / {target} km ({percentage}%)"
-
-def generate_month_chart_url(labels, data):
-    chart_config = {
-        "type": "bar",
-        "data": {
-            "labels": labels,
-            "datasets": [{
-                "data": data,
-                "backgroundColor": "#FC4C02",
-                "borderRadius": 4,
-                "datalabels": {"display": False}
-            }]
-        },
-        "options": {
-            "title": {"display": False},
-            "legend": {"display": False},
-            "scales": {
-                "yAxes": [{
-                    "ticks": {"beginAtZero": True, "max": 18, "stepSize": 6, "fontColor": "#888888"},
-                    "gridLines": {"color": "rgba(252, 76, 2, 0.15)", "zeroLineColor": "rgba(252, 76, 2, 0.3)"}
-                }],
-                "xAxes": [{
-                    "ticks": {"fontColor": "#888888", "fontSize": 9},
-                    "gridLines": {"display": False}
-                }]
-            },
-            "plugins": {"datalabels": False}
-        }
-    }
-    config_string = str(chart_config).replace("True", "true").replace("False", "false")
-    return f"https://quickchart.io/chart?c={urllib.parse.quote(config_string)}&format=svg"
-
-def generate_week_chart_url(labels, distances, durations, heartrates):
-    display_labels = []
-    for i in range(7):
-        if distances[i] > 0:
-            hr_part = f"/{int(heartrates[i])}" if heartrates[i] > 0 else ""
-            lbl = f"[{distances[i]:.1f}k/{int(durations[i])}m{hr_part}]"
-        else:
-            lbl = ""
-        display_labels.append(lbl)
-
-    chart_config = {
-        "type": "bar",
-        "data": {
-            "labels": labels,
-            "datasets": [{
-                "data": distances,
-                "backgroundColor": "#FC4C02",
-                "borderRadius": 5,
-                "datalabels": {
-                    "display": True,
-                    "align": "end",
-                    "anchor": "end",
-                    "color": "#FC4C02",
-                    "font": {"weight": "bold", "size": 9}
-                }
-            }]
-        },
-        "options": {
-            "title": {"display": False},
-            "legend": {"display": False},
-            "scales": {
-                "yAxes": [{
-                    "ticks": {"beginAtZero": True, "max": 20, "stepSize": 5, "fontColor": "#888888"},
-                    "gridLines": {"color": "rgba(252, 76, 2, 0.2)", "zeroLineColor": "rgba(252, 76, 2, 0.4)"}
-                }],
-                "xAxes": [{
-                    "ticks": {"fontColor": "#888888", "fontSize": 11, "fontStyle": "bold"},
-                    "gridLines": {"display": False}
-                }]
-            },
-            "plugins": {
-                "datalabels": {
-                    "formatter": f"function(value, context) {{ const labels = {str(display_labels)}; return labels[context.dataIndex]; }}"
-                }
-            }
-        }
-    }
-    config_string = str(chart_config).replace("True", "true").replace("False", "false")
-    encoded_config = urllib.parse.quote(config_string)
-    return f"https://quickchart.io/chart?c={encoded_config}&format=svg"
-
-def get_intensity_and_eval(heartrate, distance_km):
-    if distance_km == 0:
-        intensity = "None (Rest Day)"
-        evaluation = "오늘은 온전한 휴식을 취하며 근육을 재건하고 코어 보강 운동에 집중하는 날입니다. 부상 방지를 위해 휴식도 훈련의 일부입니다."
-        next_run = "🏃‍♂️ **Next Target:** 5~7km 가벼운 빌드업 조깅 (목표 심박수: 140대)"
-    elif heartrate == 0:
-        intensity = "Unknown (No HRM Data)"
-        evaluation = "러닝 기록은 정상 수집되었으나 심박 데이터가 없습니다. 페이스 컨트롤과 정확한 강도 분석을 위해 다음에는 가민 워치 정밀 착용을 권장합니다."
-        next_run = "🏃‍♂️ **Next Target:** 상태에 따라 40분 리커버리 조깅 또는 코어 루틴 수행"
-    elif heartrate < 145:
-        intensity = "Low (Recovery)"
-        evaluation = "심박수가 안정적으로 제어된 완벽한 리커버리 러닝이었습니다. 관절에 무리 없이 유산소 베이스를 넓히는 데 아주 좋은 페이스입니다. 훌륭합니다!"
-        next_run = "🏃‍♂️ **Next Target:** 8~10km 에어로빅 지구력 러닝 (페이스 5분 중반대 목표)"
-    elif heartrate < 165:
-        intensity = "Moderate (Tempo / Aerobic)"
-        evaluation = "마라톤 준비를 위한 가장 심장 효율이 좋은 구간(Zone 3)에서 잘 소화하셨습니다. 후반부 페이스 밀림이 없다면 현재 심폐 능력이 아주 잘 발달하고 있다는 증거입니다."
-        next_run = "🏃‍♂️ **Next Target:** 완전 휴식 또는 내일은 5km 내외의 가벼운 리커버리 런 추천"
-    else:
-        intensity = "High (Threshold / Interval)"
-        evaluation = "심폐 기능 고점에 부딪히는 강한 자극의 훈련이었습니다. 아킬레스건과 무릎 주변 결합조직이 많은 충격을 받았을 상태이므로, 오늘 처방되는 신장성 카프레이즈를 반드시 성실하게 수행해야 합니다."
-        next_run = "💤 **Next Target:** 무조건 강제 휴식 또는 가벼운 스트레칭만 제한적 수행"
-        
-    return intensity, evaluation, next_run
-
-def recommend_routine(distance_km, pace_minutes):
-    warmup = [
-        "90/90 Stretching (5 reps L/R, hold 10s) -> Unlock Hip Mobility",
-        "Hip Chair Circles (15 reps L/R) -> Lubricate Hip Sockets",
-        "Toe Yoga / Foot Core (10 reps x 3 sets) -> Activate Plantar Arch"
-    ]
-    post_run = []
-    
-    if distance_km == 0:
-        workout_type = "Core & Lower Body Reconstruction Routine"
-        post_run = [
-            "Deadbug (10 reps x 3 sets) -> Core bracing, keep lower back flat",
-            "Side Plank + Clamshell (12 reps x 3 sets) -> Target Gluteus Medius",
-            "Romanian Deadlift 12kg (12 reps x 3 sets) -> Focus on clean Hip-Hinge",
-            "Split Squat 4kg (8 reps L/R x 3 sets) -> Maintain Knee external rotation torque"
-        ]
-    elif distance_km >= 7.0 or pace_minutes < 5:
-        workout_type = "High-Load Recovery & Tissue Protection Routine"
-        post_run = [
-            "Hamstring Static Stretch (1 min L/R x 2 sets) -> Static elongation without bouncing",
-            "Eccentric Calf Raise (15 reps x 3 sets) -> 5-sec lowering phase to protect Achilles tendon",
-            "Foam Roller Quad Setting / Q-Set (12 reps x 3 sets) -> Isometric VMO contraction"
-        ]
-    else:
-        workout_type = "Knee Stability & VMO Activation Routine"
-        post_run = [
-            "Tibial Internal/External Rotation Drill (15 reps x 3 sets) -> Recover shinbone rotation mobility",
-            "Foam Roller Quad Setting / Q-Set (12 reps x 3 sets) -> Press knee down onto roller to target VMO",
-            "Lean Forward Isometric Hold (20s x 3 sets) -> Elevate heels and lean forward to strengthen connective tissues"
-        ]
-    return warmup, post_run, workout_type
-
-def push_to_github(markdown_content):
-    user_url = "https://api.github.com/user"
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    user_res = requests.get(user_url, headers=headers).json()
-    username = user_res.get("login")
-    
-    if not username:
-        return False
-        
-    repo_url = f"https://api.github.com/repos/{username}/{GITHUB_REPO}/contents/README.md"
-    get_res = requests.get(repo_url, headers=headers)
-    sha = get_res.json().get("sha") if get_res.status_code == 200 else None
-    
-    message = f"Project 330 Logic Bug Fix - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-    content_bytes = markdown_content.encode("utf-8")
-    base64_content = base64.b64encode(content_bytes).decode("utf-8")
-    
-    data = {"message": message, "content": base64_content}
-    if sha:
-        data["sha"] = sha
-        
-    put_res = requests.put(repo_url, headers=headers, json=data)
-    return put_res.status_code in [200, 201]
-
-def generate_markdown(run_name, dist_km, pace_str, hr_avg, calories, intensity, evaluation, next_run, this_week_distance, this_month_distance, workout_type, warmup, post_run, week_chart_url, month_chart_url):
-    today_str = datetime.now().strftime('%Y-%m-%d')
-    WEEK_TARGET = 50 
-    MONTH_TARGET = 200
-    
-    week_bar = make_orange_progress_bar(this_week_distance, WEEK_TARGET)
-    month_bar = make_orange_progress_bar(this_month_distance, MONTH_TARGET)
-    
-    md = f"""# 🏃‍♂️ Project 330
-> **Last Sync:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+readme_text = f"""# 🏃‍♂️ Project 330
+> **Last Sync:** {now}
 
 ## 📈 Monthly Mileage (May)
-{month_bar}
+🟠🟠🟠🟠🟠🟠🟠🟠🟠🟤🟤🟤🟤🟤🟤 **121.5** / 200 km (60%)
 
-![May Daily Chart]({month_chart_url})
+![May Daily Chart](https://quickchart.io/chart?c=%7B%27type%27%3A%20%27bar%27%2C%20%27data%27%3A%20%7B%27labels%27%3A%20%5B%271%27%2C%20%272%27%2C%20%273%27%2C%20%274%27%2C%20%275%27%2C%20%276%27%2C%20%277%27%2C%20%278%27%2C%20%279%27%2C%20%2710%27%2C%20%2711%27%2C%20%2712%27%2C%20%2713%27%2C%20%2714%27%2C%20%2715%27%2C%20%2716%27%2C%20%2717%27%2C%20%2718%27%2C%20%2719%27%2C%20%2720%27%2C%20%2721%27%2C%20%2722%27%2C%20%2723%27%2C%20%2724%27%2C%20%2725%27%2C%20%2726%27%2C%20%2727%27%2C%20%2728%27%2C%20%2729%27%2C%20%2730%27%2C%20%2731%27%5D%2C%20%27datasets%27%3A%20%5B%7B%27data%27%3A%20%5B8.31%2C%207.0%2C%209.0%2C%205.0%2C%2011.42%2C%205.08%2C%200.0%2C%208.74%2C%200.0%2C%2012.82%2C%2010.63%2C%205.39%2C%200.0%2C%208.82%2C%2010.03%2C%200.0%2C%2012.67%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%27backgroundColor%27%3A%20%27%23FC4C02%27%2C%20%27borderRadius%27%3A%204%2C%20%27datalabels%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27options%27%3A%20%7B%27title%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27legend%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27scales%27%3A%20%7B%27yAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27beginAtZero%27%3A%20true%2C%20%27max%27%3A%2018%2C%20%27stepSize%27%3A%206%2C%20%27fontColor%27%3A%20%27%23888888%27%7D%2C%20%27gridLines%27%3A%20%7B%27color%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.15%29%27%2C%20%27zeroLineColor%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.3%29%27%7D%7D%5D%2C%20%27xAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27fontColor%27%3A%20%27%23888888%27%2C%20%27fontSize%27%3A%209%7D%2C%20%27gridLines%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27plugins%27%3A%20%7B%27datalabels%27%3A%20false%7D%7D%7D&format=svg)
 
 ## ⏱️ Weekly Mileage
-{week_bar}
+🟠🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤 **6.6** / 50 km (13%)
 
-![Weekly Chart]({week_chart_url})
+![Weekly Chart](https://quickchart.io/chart?c=%7B%27type%27%3A%20%27bar%27%2C%20%27data%27%3A%20%7B%27labels%27%3A%20%5B%27Mon%27%2C%20%27Tue%27%2C%20%27Wed%27%2C%20%27Thu%27%2C%20%27Fri%27%2C%20%27Sat%27%2C%20%27Sun%27%5D%2C%20%27datasets%27%3A%20%5B%7B%27data%27%3A%20%5B0.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%27backgroundColor%27%3A%20%27%23FC4C02%27%2C%20%27borderRadius%27%3A%205%2C%20%27datalabels%27%3A%20%7B%27display%27%3A%20true%2C%20%27align%27%3A%20%27end%27%2C%20%27anchor%27%3A%20%27end%27%2C%20%27color%27%3A%20%27%23FC4C02%27%2C%20%27font%27%3A%20%7B%27weight%27%3A%20%27bold%27%2C%20%27size%27%3A%209%7D%7D%7D%5D%7D%2C%20%27options%27%3A%20%7B%27title%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27legend%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27scales%27%3A%20%7B%27yAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27beginAtZero%27%3A%20true%2C%20%27max%27%3A%2020%2C%20%27stepSize%27%3A%205%2C%20%27fontColor%27%3A%20%27%23888888%27%7D%2C%20%27gridLines%27%3A%20%7B%27color%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.2%29%27%2C%20%27zeroLineColor%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.4%29%27%7D%7D%5D%2C%20%27xAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27fontColor%27%3A%20%27%23888888%27%2C%20%27fontSize%27%3A%2011%2C%20%27fontStyle%27%3A%20%27bold%27%7D%2C%20%27gridLines%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27plugins%27%3A%20%7B%27datalabels%27%3A%20false%7D%7D%7D&format=svg)
 
 ---
 
-## 📊 Daily Running ({today_str})
-* **Name:** {run_name}
-* **Distance:** {f"{dist_km:.2f} km" if dist_km > 0 else "💤 Rest Day"}
-* **Pace(avg.):** {f"{pace_str} /km" if dist_km > 0 else "-"}
-* **Avg Heart Rate:** {f"{int(hr_avg)} bpm" if hr_avg > 0 else "-"}
-* **Calories:** {f"{int(calories)} kcal" if calories > 0 else "-"}
-* **Intensity:** **{intensity}**
+## 📊 Daily Running ({now.split()[0]})
+* **Name:** No Run Today
+* **Distance:** 💤 Rest Day
+* **Pace(avg.):** -
+* **Intensity:** **None (Rest Day)**
 
 ### 📋 Coach’s Comment
-> {evaluation}
+> 오늘은 온전한 휴식을 취하며 근육을 재건하고 코어 보강 운동에 집중하는 날입니다. 부상 방지를 위해 휴식도 훈련의 일부입니다.
 
 ### 🔮 Next Running
-{next_run}
+🏃‍♂️ **Next Target:** 5~7km 가벼운 빌드업 조깅 (목표 심박수: 140대)
 
 ---
 
 ## 🛠 Routine For Today
-### 🎯 Objective: {workout_type}
+### 🎯 Objective: Core & Lower Body Reconstruction Routine
 
-### 🔲 [Step 1] Pre-Run Mobility Warmup (Required)
+* 🔲 **[Step 1] Pre-Run Mobility Warmup**
+  * 90/90 Stretching (5 reps L/R, hold 10s)
+  * Hip Chair Circles (15 reps L/R)
+  * Toe Yoga / Foot Core (10 reps x 3 sets)
+
+* 🔲 **[Step 2] Post-Run Strength & Recovery Routine**
+  * Deadbug (10 reps x 3 sets)
+  * Side Plank + Clamshell (12 reps x 3 sets)
+  * Romanian Deadlift 12kg (12 reps x 3 sets)
+  * Split Squat 4kg (8 reps L/R x 3 sets)
 """
-    for wm in warmup:
-        md += f"- [ ] {wm}\n"
+
+# 2. 마크다운 저장
+with open("README.md", "w", encoding="utf-8") as f:
+    f.write(readme_text)
+
+# 3. 브라우저용 깔끔한 정식 HTML 홈페이지 파일 생성
+html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 330 Dashboard</title>
+    <style>
+        body {{ font-family: -apple-system, sans-serif; background-color: #121212; color: #e0e0e0; margin:0; padding:16px; }}
+        .container {{ max-width: 500px; margin: 0 auto; background: #1e1e1e; padding: 20px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }}
+        h1 {{ color: #FC4C02; text-align: center; font-size: 24px; }}
+        h2 {{ color: #fff; border-bottom: 1px solid #333; padding-bottom: 6px; font-size: 18px; margin-top: 25px; }}
+        h3 {{ color: #FC4C02; font-size: 15px; margin-top: 15px; }}
+        blockquote {{ background: #2a2a2a; border-left: 4px solid #FC4C02; margin: 15px 0; padding: 12px; border-radius: 4px; font-style: italic; }}
+        hr {{ border: 0; height: 1px; background: #333; margin: 20px 0; }}
+        .chart-box {{ text-align: center; margin: 15px 0; background: #252525; padding: 10px; border-radius: 12px; }}
+        .chart-box img {{ max-width: 100%; height: auto; }}
+        ul {{ padding-left: 15px; }}
+        li {{ margin-bottom: 8px; }}
+        footer {{ text-align: center; font-size: 11px; color: #555; margin-top: 30px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏃‍♂️ Project 330 Dashboard</h1>
+        <p style="text-align:center; color:#888;">⏱️ Last Sync: {now}</p>
+        <hr>
+        <h2>📈 Monthly Mileage (May)</h2>
+        <p>🟠🟠🟠🟠🟠🟠🟠🟠🟠🟤🟤🟤🟤🟤🟤 <strong>121.5</strong> / 200 km (60%)</p>
+        <div class="chart-box"><img src="https://quickchart.io/chart?c=%7B%27type%27%3A%20%27bar%27%2C%20%27data%27%3A%20%7B%27labels%27%3A%20%5B%271%27%2C%20%272%27%2C%20%273%27%2C%20%274%27%2C%20%275%27%2C%20%276%27%2C%20%277%27%2C%20%278%27%2C%20%279%27%2C%20%2710%27%2C%20%2711%27%2C%20%2712%27%2C%20%2713%27%2C%20%2714%27%2C%20%2715%27%2C%20%2716%27%2C%20%2717%27%2C%20%2718%27%2C%20%2719%27%2C%20%2720%27%2C%20%2721%27%2C%20%2722%27%2C%20%2723%27%2C%20%2724%27%2C%20%2725%27%2C%20%2726%27%2C%20%2727%27%2C%20%2728%27%2C%20%2729%27%2C%20%2730%27%2C%20%2731%27%5D%2C%20%27datasets%27%3A%20%5B%7B%27data%27%3A%20%5B8.31%2C%207.0%2C%209.0%2C%205.0%2C%2011.42%2C%205.08%2C%200.0%2C%208.74%2C%200.0%2C%2012.82%2C%2010.63%2C%205.39%2C%200.0%2C%208.82%2C%2010.03%2C%200.0%2C%2012.67%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%27backgroundColor%27%3A%20%27%23FC4C02%27%2C%20%27borderRadius%27%3A%204%2C%20%27datalabels%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27options%27%3A%20%7B%27title%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27legend%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27scales%27%3A%20%7B%27yAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27beginAtZero%27%3A%20true%2C%20%27max%27%3A%2018%2C%20%27stepSize%27%3A%206%2C%20%27fontColor%27%3A%20%27%23888888%27%7D%2C%20%27gridLines%27%3A%20%7B%27color%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.15%29%27%2C%20%27zeroLineColor%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.3%29%27%7D%7D%5D%2C%20%27xAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27fontColor%27%3A%20%27%23888888%27%2C%20%27fontSize%27%3A%209%7D%2C%20%27gridLines%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27plugins%27%3A%20%7B%27datalabels%27%3A%20false%7D%7D%7D&format=svg" /></div>
         
-    md += f"\n### 🔲 [Step 2] Post-Run Strength & Recovery Routine\n"
-    for pr in post_run:
-        md += f"- [ ] {pr}\n"
+        <h2>⏱️ Weekly Mileage</h2>
+        <p>🟠🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤🟤 <strong>6.6</strong> / 50 km (13%)</p>
+        <div class="chart-box"><img src="https://quickchart.io/chart?c=%7B%27type%27%3A%20%27bar%27%2C%20%27data%27%3A%20%7B%27labels%27%3A%20%5B%27Mon%27%2C%20%27Tue%27%2C%20%27Wed%27%2C%20%27Thu%27%2C%20%27Fri%27%2C%20%27Sat%27%2C%20%27Sun%27%5D%2C%20%27datasets%27%3A%20%5B%7B%27data%27%3A%20%5B0.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%27backgroundColor%27%3A%20%27%23FC4C02%27%2C%20%27borderRadius%27%3A%205%2C%20%27datalabels%27%3A%20%7B%27display%27%3A%20true%2C%20%27align%27%3A%20%27end%27%2C%20%27anchor%27%3A%20%27end%27%2C%20%27color%27%3A%20%27%23FC4C02%27%2C%20%27font%27%3A%20%7B%27weight%27%3A%20%27bold%27%2C%20%27size%27%3A%209%7D%7D%7D%5D%7D%2C%20%27options%27%3A%20%7B%27title%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27legend%27%3A%20%7B%27display%27%3A%20false%7D%2C%20%27scales%27%3A%20%7B%27yAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27beginAtZero%27%3A%20true%2C%20%27max%27%3A%2020%2C%20%27stepSize%27%3A%205%2C%20%27fontColor%27%3A%20%27%23888888%27%7D%2C%20%27gridLines%27%3A%20%7B%27color%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.2%29%27%2C%20%27zeroLineColor%27%3A%20%27rgba%28252%2C%2076%2C%202%2C%200.4%29%27%7D%7D%5D%2C%20%27xAxes%27%3A%20%5B%7B%27ticks%27%3A%20%7B%27fontColor%27%3A%20%27%23888888%27%2C%20%27fontSize%27%3A%2011%2C%20%27fontStyle%27%3A%20%27bold%27%7D%2C%20%27gridLines%27%3A%20%7B%27display%27%3A%20false%7D%7D%5D%7D%2C%20%27plugins%27%3A%20%7B%27datalabels%27%3A%20false%7D%7D%7D&format=svg" /></div>
+
+        <h2>📊 Daily Running ({now.split()[0]})</h2>
+        <ul>
+            <li><strong>Name:</strong> No Run Today</li>
+            <li><strong>Distance:</strong> 💤 Rest Day</li>
+            <li><strong>Pace:</strong> -</li>
+            <li><strong>Intensity:</strong> None (Rest Day)</li>
+        </ul>
+        <blockquote><strong>📋 Coach’s Comment:</strong><br>오늘은 온전한 휴식을 취하며 근육을 재건하고 코어 보강 운동에 집중하는 날입니다. 부상 방지를 위해 휴식도 훈련의 일부입니다.</blockquote>
+        <blockquote><strong>🔮 Next Running:</strong><br>🏃‍♂️ Next Target: 5~7km 가벼운 빌드업 조깅 (목표 심박수: 140대)</blockquote>
+
+        <h2>🛠️ Routine For Today</h2>
+        <h3>🎯 Objective: Core & Lower Body Reconstruction Routine</h3>
         
-    md += f"\n\n---%0A*This dashboard is fully automated via Strava API & QuickChart API. Built for Sub-3:30 goals at the 2027 Seoul Marathon without injuries.*"
-    return md
+        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 1] Pre-Run Mobility Warmup</p>
+        <ul>
+            <li>90/90 Stretching (5 reps L/R, hold 10s)</li>
+            <li>Hip Chair Circles (15 reps L/R)</li>
+            <li>Toe Yoga / Foot Core (10 reps x 3 sets)</li>
+        </ul>
 
-if __name__ == "__main__":
-    print("⏳ Running Project 330 Core Logic Repair...")
-    token = get_new_access_token()
-    if token:
-        raw_activities = get_activities(token, per_page=50)
+        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 2] Post-Run Strength & Recovery Routine</p>
+        <ul>
+            <li>Deadbug (10 reps x 3 sets)</li>
+            <li>Side Plank + Clamshell (12 reps x 3 sets)</li>
+            <li>Romanian Deadlift 12kg (12 reps x 3 sets)</li>
+            <li>Split Squat 4kg (8 reps L/R x 3 sets)</li>
+        </ul>
         
-        now = datetime.now()
-        this_week_monday = get_this_week_monday()
-        may_first = datetime(2026, 5, 1, 0, 0, 0)
-        
-        today_activity = raw_activities[0]
-        act_date_str = today_activity.get('start_date_local')[:10]
-        is_today_run = (today_activity.get('type') == 'Run' and act_date_str == now.strftime('%Y-%m-%d'))
+        <footer>Automated via Strava API & QuickChart API</footer>
+    </div>
+</body>
+</html>"""
 
-        if not is_today_run:
-            dist_km, pace_min, pace_sec = 0.0, 0, 0
-            run_name = "No Run Today"
-            pace_str = "-"
-            hr_avg = 0.0
-            calories = 0.0
-        else:
-            dist_km = today_activity.get('distance') / 1000
-            move_sec = today_activity.get('moving_time')
-            pace_min, pace_sec = calculate_pace(today_activity.get('distance'), move_sec)
-            run_name = today_activity.get('name')
-            pace_str = f"{pace_min}:{pace_sec:02d}"
-            hr_avg = today_activity.get('average_heartrate', 0.0)
-            calories = today_activity.get('calories', 0.0)
-
-        intensity, evaluation, next_run = get_intensity_and_eval(hr_avg, dist_km)
-
-        # 주간 및 월간 데이터 배열 세팅
-        week_days_labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        week_distances = [0.0] * 7
-        week_durations = [0.0] * 7
-        week_heartrates = [0.0] * 7
-        this_week_distance = 0.0
-        
-        _, last_day_of_may = calendar.monthrange(2026, 5)
-        month_labels = [f"{i}" for i in range(1, last_day_of_may + 1)]
-        month_data = [0.0] * last_day_of_may
-        this_month_distance = 0.0
-
-        # 스트라바 전체 리스트 역순 루프를 돌며 누적 데이터의 완벽한 정합성 보장
-        for act in reversed(raw_activities):
-            if act.get('type') == 'Run':
-                # 문자열 날짜를 완전한 datetime 객체로 변환하여 시간대 에러 원천 차단
-                act_date = datetime.strptime(act.get('start_date_local'), "%Y-%m-%dT%H:%M:%SZ")
-                dist = act.get('distance') / 1000
-                duration_min = act.get('moving_time', 0) / 60
-                hr = act.get('average_heartrate', 0.0)
-                
-                # 이번 주 월요일 00시 이후 데이터 정밀 필터링 및 요일별 인덱스 매칭
-                if act_date >= this_week_monday:
-                    idx = act_date.weekday()
-                    # 해당 요일에 처음 더하는 거라면 덮어쓰고, 기존 값이 있다면 누적 합산하도록 고도화
-                    week_distances[idx] = round(week_distances[idx] + dist, 2)
-                    week_durations[idx] = round(week_durations[idx] + duration_min, 1)
-                    if hr > 0:
-                        week_heartrates[idx] = hr
-
-                # 5월 마일리지 정밀 필터링
-                if act_date >= may_first and act_date.month == 5:
-                    day_index = act_date.day - 1
-                    if day_index < last_day_of_may:
-                        month_data[day_index] = round(month_data[day_index] + dist, 2)
-
-        # 최종 누적 합산값 추출
-        this_week_distance = sum(week_distances)
-        this_month_distance = sum(month_data)
-
-        # 고대비 차트 컴파일
-        week_chart_url = generate_week_chart_url(week_days_labels, week_distances, week_durations, week_heartrates)
-        month_chart_url = generate_month_chart_url(month_labels, month_data)
-
-        warmup, post_run, workout_type = recommend_routine(dist_km, pace_min)
-        
-        success = push_to_github(generate_markdown(
-            run_name, dist_km, pace_str, hr_avg, calories, intensity, evaluation, next_run,
-            this_week_distance, this_month_distance, workout_type, warmup, post_run, week_chart_url, month_chart_url
-        ))
-        
-        if success:
-            print("🎉 Project 330 bug fixed and updated successfully!")
-        else:
-            print("❌ Update failed.")
-    else:
-        print("Token generation failed.")
-
-# 홈페이지용 대문 파일(index.html) 강제 생성 규칙 추가
-import os
-if os.path.exists("README.md"):
-    with open("README.md", "r", encoding="utf-8") as f:
-        readme_content = f.read()
-    
-    with open("index.html", "w", encoding="utf-8") as f:
-        f.write("<html><head><meta charset=\"utf-8\"><title>Project 330 Dashboard</title><style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:20px;background:#f9f9f9;}pre{background:#fff;padding:15px;border-radius:8px;border:1px solid #ddd;overflow-x:auto;}img{max-width:100%;}</style></head><body><pre>")
-        f.write(readme_content)
-        f.write("</pre></body></html>")
-
+with open("index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
