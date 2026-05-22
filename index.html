@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 330 - AI Running Coach</title>
+    <!-- Google Fonts 연동 (Outfit & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #FC4C02;
+            --primary-glow: rgba(252, 76, 2, 0.35);
+            --bg: #0b0c10;
+            --card-bg: rgba(30, 30, 35, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(252, 76, 2, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(252, 76, 2, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(20, 20, 25, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .brand span {
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .sync-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .sync-pulse {
+            width: 6px;
+            height: 6px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Section Global */
+        section {
+            margin-bottom: 28px;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Progress Card */
+        .progress-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .progress-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .progress-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .progress-value span {
+            color: var(--primary);
+        }
+
+        .progress-target {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff7e40, var(--primary));
+            border-radius: 999px;
+            box-shadow: 0 0 10px rgba(252, 76, 2, 0.5);
+            transition: width 1s ease-out;
+        }
+
+        .chart-box {
+            text-align: center;
+            margin-top: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .chart-box img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Daily Running Cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .stat-unit {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .rest-card {
+            background: rgba(252, 76, 2, 0.05);
+            border: 1px dashed rgba(252, 76, 2, 0.25);
+            border-radius: 16px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .rest-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .rest-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .rest-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Week Plan Table */
+        .week-plan-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px;
+            overflow-x: auto;
+        }
+
+        /* Coach's Comment Block */
+        .coach-comment-box {
+            background: rgba(252, 76, 2, 0.07);
+            border-left: 4px solid var(--primary);
+            border-radius: 4px 14px 14px 4px;
+            padding: 14px;
+            font-style: normal;
+            font-size: 13.5px;
+            color: #f3f4f6;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .comment-header {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Next Running Recommend Box */
+        .next-recommend-box {
+            background: linear-gradient(135deg, rgba(252, 76, 2, 0.15) 0%, rgba(20, 20, 25, 0.5) 100%);
+            border: 1px solid rgba(252, 76, 2, 0.25);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            box-shadow: 0 4px 10px var(--primary-glow);
+        }
+
+        /* Interactive Routine checklist */
+        .routine-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .routine-card ul {
+            list-style: none;
+            margin-top: 6px;
+            margin-bottom: 12px;
+        }
+
+        .routine-card li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #d1d5db;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .routine-card li input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 17px;
+            height: 17px;
+            border: 2px solid var(--text-muted);
+            border-radius: 4px;
+            outline: none;
+            background-color: transparent;
+            cursor: pointer;
+            display: grid;
+            place-content: center;
+            margin-top: 1.5px;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .routine-card li input[type="checkbox"]::before {
+            content: "✓";
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            transform: scale(0);
+            transition: transform 0.15s ease-in-out;
+        }
+
+        .routine-card li input[type="checkbox"]:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .routine-card li input[type="checkbox"]:checked::before {
+            transform: scale(1);
+        }
+
+        .routine-card li.completed span {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 14px;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Scroll Custom */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="brand">🏃‍♂️ Project <span>330</span></div>
+            <div class="sync-time">
+                <span class="sync-pulse"></span>
+                <span>Last Sync: 2026-05-22 23:12:36 (KST)</span>
+            </div>
+        </header>
+
+        <!-- Mileage Progress -->
+        <section>
+            <h2>📈 Monthly Mileage (May)</h2>
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-title">목표 달성률</span>
+                    <span class="progress-value"><span>121.5</span> / 200 km</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 60%;"></div>
+                </div>
+                <div class="chart-box">
+                    <img src="https://quickchart.io/chart?c={"type": "bar", "data": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"], "datasets": [{"data": [8.31, 7.0, 9.0, 5.0, 11.42, 5.08, 0.0, 8.74, 0.0, 12.82, 10.63, 5.39, 0.0, 8.82, 10.03, 0.0, 12.67, 0.0, 6.58, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "backgroundColor": "#FC4C02", "borderRadius": 4, "datalabels": {"display": false}}]}, "options": {"title": {"display": false}, "legend": {"display": false}, "scales": {"yAxes": [{"ticks": {"beginAtZero": true, "max": 18, "stepSize": 6, "fontColor": "#888888"}, "gridLines": {"color": "rgba(252, 76, 2, 0.15)", "zeroLineColor": "rgba(252, 76, 2, 0.3)"}}], "xAxes": [{"ticks": {"fontColor": "#888888", "fontSize": 9}, "gridLines": {"display": false}}]}, "plugins": {"datalabels": false}}}&format=svg" alt="May Mileage Chart" />
+                </div>
+            </div>
+
+            <h2>⏱️ Weekly Mileage</h2>
+            <div class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-title">목표 달성률</span>
+                    <span class="progress-value"><span>6.6</span> / 50 km</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 13%;"></div>
+                </div>
+                <div class="chart-box">
+                    <img src="https://quickchart.io/chart?c={"type": "bar", "data": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "datasets": [{"data": [0.0, 0.0, 6.58, 0.0, 0.0, 0.0, 0.0], "backgroundColor": "#FC4C02", "borderRadius": 5, "datalabels": {"display": true, "align": "end", "anchor": "end", "color": "#FC4C02", "font": {"weight": "bold", "size": 9}}}]}, "options": {"title": {"display": false}, "legend": {"display": false}, "scales": {"yAxes": [{"ticks": {"beginAtZero": true, "max": 20, "stepSize": 5, "fontColor": "#888888"}, "gridLines": {"color": "rgba(252, 76, 2, 0.2)", "zeroLineColor": "rgba(252, 76, 2, 0.4)"}}], "xAxes": [{"ticks": {"fontColor": "#888888", "fontSize": 11, "fontStyle": "bold"}, "gridLines": {"display": false}}]}, "plugins": {"datalabels": false}}}&format=svg" alt="Weekly Mileage Chart" />
+                </div>
+            </div>
+        </section>
+
+        <!-- Week Plan (Dynamic Gemini calculated) -->
+        <section>
+            <h2>📅 Week Plan (주간 계획표)</h2>
+            <div class="week-plan-card">
+                
+    <table style="width:100%; border-collapse:collapse; text-align:center; font-size:13px; color:#e0e0e0;">
+        <thead>
+            <tr style="border-bottom:1px solid #444; color:#FC4C02;">
+                <th style="padding:8px;">요일</th>
+                <th style="padding:8px;">훈련 타입</th>
+                <th style="padding:8px;">거리</th>
+                <th style="padding:8px;">강도</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">월</td><td>완전 휴식</td><td>-</td><td>💤 OFF</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">화</td><td>이지 조깅</td><td>6.58 km</td><td>🟢 가볍게</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">수</td><td>빌드업 조깅</td><td>8.00 km</td><td>🟡 중간</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">목</td><td>보강 운동</td><td>-</td><td>🟠 코어 집중</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">금</td><td>지속주 런</td><td>10.00 km</td><td>🟡 중간</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">토</td><td>조깅 + 질주</td><td>5.00 km</td><td>🟢 가볍게</td>
+            </tr>
+            <tr style="border-bottom:1px solid #2a2a2a;">
+                <td style="padding:8px; font-weight:bold;">일</td><td>주말 장거리</td><td>15.00 km</td><td>🟠 약간 높음</td>
+            </tr>
+        </tbody>
+    </table>
+    
+            </div>
+        </section>
+
+        <!-- Daily Running stats -->
+        <section>
+            <h2>🏃‍♂️ Daily Running (2026-05-22)</h2>
+            
+        <div class="rest-card">
+            <span class="rest-icon">💤</span>
+            <div class="rest-title">Today is a Rest Day!</div>
+            <div class="rest-desc">근섬유의 재건과 피로 회복도 훈련의 연장선입니다. 보강운동에 신경 써 주세요.</div>
+        </div>
+        
+            
+            <div class="coach-comment-box">
+                <div class="comment-header">📋 AI COACH'S COMMENT</div>
+                현재 피로도와 컨디션이 매우 양호합니다! 무더운 여름이 다가오기 전에 주 5일 러닝 일정을 잘 소화하시되, 심박수 존 2~3 영역(135-145bpm) 내에서 조깅 마일리지를 차근차근 누적하는 것이 최고의 보약입니다. 러닝 전 웜업 기동성 스트레칭은 부상 방지의 핵심이니 잊지 마세요.
+            </div>
+            
+            <div class="next-recommend-box">
+                🏃‍♂️ Next Target: 6~8km 편안한 존2 조깅 (타겟 심박수 138-144bpm)
+            </div>
+        </section>
+
+        <!-- Today's Routine checklist -->
+        <section>
+            <h2>🛠️ Routine For Today</h2>
+            <div class="routine-card" id="routine-section">
+                
+        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 1] 러닝 전 고관절 및 발목 기동성 웜업</p>
+        <ul>
+            <li>90/90 스트레칭 (좌우 5회, 10초 유지)</li>
+            <li>힙 체어 서클 (좌우 15회)</li>
+            <li>토 요가 / 발바닥 내재근 깨우기 (10회, 3세트)</li>
+        </ul>
+        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 2] 러닝 후 부상방지 보강 코어</p>
+        <ul>
+            <li>데드버그 (10회 x 3세트)</li>
+            <li>사이드 플랭크 + 클램쉘 중둔근 보강 (좌우 12회, 3세트)</li>
+            <li>싱글 레그 데드리프트 (맨몸 좌우 10회, 3세트)</li>
+        </ul>
+        
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Automated with Strava API & Gemini 1.5 & QuickChart</p>
+            <p style="margin-top: 4px;">Designed by Antigravity for <a href="https://github.com/Jay330-KR/Jaewon-s-Running-Coach" target="_blank">Project330</a></p>
+        </footer>
+    </div>
+
+    <!-- Interactive To-Do list state script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const routineContainer = document.getElementById('routine-section');
+            if (!routineContainer) return;
+
+            // 1. 모든 li 요소를 체크리스트 형태로 바인딩
+            const items = routineContainer.querySelectorAll('ul li');
+            
+            items.forEach((item, index) => {
+                // 내부 텍스트 확보
+                const text = item.innerHTML;
+                const storageKey = `project330_todo_${index}_${today_date}`;
+                const isChecked = localStorage.getItem(storageKey) === 'true';
+
+                // HTML 구조 변경: 체크박스 강제 주입
+                item.innerHTML = `<input type="checkbox" id="check_${index}" ${isChecked ? 'checked' : ''}> <span>${text}</span>`;
+                
+                if (isChecked) {
+                    item.classList.add('completed');
+                }
+
+                // 클릭 이벤트 바인딩
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                
+                const toggleCheck = (e) => {
+                    // 만약 체크박스 자체를 누른 게 아니라면 토글 처리
+                    if (e.target !== checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    
+                    if (checkbox.checked) {
+                        item.classList.add('completed');
+                        localStorage.setItem(storageKey, 'true');
+                    } else {
+                        item.classList.remove('completed');
+                        localStorage.setItem(storageKey, 'false');
+                    }
+                };
+
+                item.addEventListener('click', toggleCheck);
+            });
+        });
+    </script>
+</body>
+</html>
