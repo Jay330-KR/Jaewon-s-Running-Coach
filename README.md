@@ -1,5 +1,5 @@
 # 🏃‍♂️ Project 330: AI Running Coach Dashboard
-> **Last Sync (KST):** 2026-05-22 23:12:36
+> **Last Sync (KST):** 2026-05-23 00:16:38
 
 ## 📈 Monthly Mileage (May)
 121.5 / 200 km
@@ -7,7 +7,7 @@
 ## ⏱️ Weekly Mileage
 6.6 / 50 km
 
-## 📊 Daily Running (2026-05-22)
+## 📊 Daily Running (2026-05-23)
 휴식 또는 보강의 날
 - 🏃‍♂️ Next Target: 6~8km 편안한 존2 조깅 (타겟 심박수 138-144bpm)
 

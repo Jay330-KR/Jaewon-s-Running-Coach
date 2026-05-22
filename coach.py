@@ -337,7 +337,7 @@ def get_ai_coaching_content(stats, condition, routines):
     try:
         print("🤖 [Gemini] AI 러닝 코치 동적 추론 실행 중...")
         genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         
         response = model.generate_content(
             prompt,
