@@ -2032,7 +2032,7 @@ def build_html_dashboard(stats, ai):
             const pain = document.getElementById('cond-pain').value;
             const notes = document.getElementById('cond-notes').value;
 
-            const formattedPlan = appState.weekPlan.map(p => `요일: ${p.day}요일, 종류: ${p.type}, 목표 거리: ${p.distance}, 강도: ${p.intensity}`).join("\n");
+            const formattedPlan = appState.weekPlan.map(p => `요일: ${p.day}요일, 종류: ${p.type}, 목표 거리: ${p.distance}, 강도: ${p.intensity}`).join("\\n");
             
             const prompt = `
 역할: 전문 마라톤 코치이자 부상 방지 재활 및 임산부/육아 러닝 전문가.
