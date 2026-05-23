@@ -164,7 +164,7 @@
             justify-content: space-between;
             align-items: baseline;
             margin-bottom: 8px;
-        }}
+        }
 
         .progress-title {
             font-size: 13px;
@@ -216,6 +216,47 @@
         .chart-box img {
             max-width: 100%;
             height: auto;
+        }
+
+        /* AI Run Loop Styling (New) */
+        .loop-card {
+            background: linear-gradient(135deg, rgba(252, 76, 2, 0.1) 0%, rgba(30, 30, 35, 0.6) 100%);
+            border: 1px solid rgba(252, 76, 2, 0.2);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(252, 76, 2, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .loop-step {
+            margin-bottom: 14px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+            padding-left: 12px;
+        }
+        .loop-step.active {
+            border-left-color: var(--primary);
+        }
+
+        .loop-step-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .loop-step-body {
+            font-size: 13.5px;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .loop-step-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            line-height: 1.4;
         }
 
         /* Daily Running Cards */
@@ -354,7 +395,7 @@
             border-left: 4px solid var(--primary);
             border-radius: 4px 14px 14px 4px;
             padding: 14px;
-            font-size: 13px;
+            font-size: 13.5px;
             color: #f3f4f6;
             margin: 15px 0;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -484,24 +525,40 @@
             width: 100%;
         }
 
-        /* Block Routine checklist */
+        /* 3-Tier Routine Sub-Headers */
+        .tier-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tier-header-base { color: #10b981; }
+        .tier-header-workout { color: #3b82f6; }
+        .tier-header-prerun { color: #fb7185; }
+
         .routine-container-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .routine-block {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 12px;
+            padding: 10px 12px;
             position: relative;
             transition: all 0.2s ease;
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 10px;
             user-select: none;
         }
 
@@ -516,17 +573,17 @@
         }
 
         .routine-check {
-            margin-top: 4px;
+            margin-top: 3px;
             flex-shrink: 0;
         }
 
         .routine-check input[type="checkbox"] {
             appearance: none;
             -webkit-appearance: none;
-            width: 19px;
-            height: 19px;
+            width: 18px;
+            height: 18px;
             border: 2px solid var(--text-muted);
-            border-radius: 6px;
+            border-radius: 5px;
             outline: none;
             background-color: transparent;
             cursor: pointer;
@@ -537,7 +594,7 @@
 
         .routine-check input[type="checkbox"]::before {
             content: "✓";
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: #fff;
             transform: scale(0);
@@ -562,14 +619,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .routine-badge {
-            font-size: 9px;
+            font-size: 8px;
             font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 1px 4px;
+            border-radius: 3px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: #fff;
@@ -587,29 +644,29 @@
         }
 
         .routine-name {
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 600;
             color: #fff;
             display: block;
-            margin-bottom: 2px;
         }
 
         .routine-tips {
-            font-size: 11.5px;
+            font-size: 11px;
             color: var(--text-muted);
-            margin-top: 4px;
-            line-height: 1.4;
+            margin-top: 3px;
+            line-height: 1.35;
             display: block;
         }
 
         .routine-controls {
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-left: 8px;
+            flex-direction: row;
+            gap: 4px;
+            margin-left: 6px;
             flex-shrink: 0;
-            opacity: 0.3;
+            opacity: 0.2;
             transition: opacity 0.2s ease;
+            align-self: center;
         }
 
         .routine-block:hover .routine-controls {
@@ -621,13 +678,13 @@
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 11px;
+            font-size: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
             transition: all 0.2s ease;
         }
 
@@ -748,33 +805,32 @@
             font-weight: 500;
         }
 
-        /* Add Exercise Dropdown Card */
-        .add-routine-drawer {
-            margin-top: 10px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 12px;
-            display: none;
-            animation: slideDown 0.25s ease-out;
+        /* Inline Exercise Library Drawer */
+        .add-routine-drawer-inline {
+            margin-top: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 8px;
+            animation: slideDown 0.2s ease-out;
         }
 
         @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
+            from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .add-routine-drawer select {
+        .add-routine-drawer-inline select {
             background: #1e1e24;
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            border-radius: 6px;
-            padding: 8px;
-            font-size: 12px;
+            border-radius: 5px;
+            padding: 5px;
+            font-size: 11px;
             outline: none;
             width: 100%;
             cursor: pointer;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         /* Footer */
@@ -817,7 +873,7 @@
             <div class="brand">🏃‍♂️ Project <span>330</span></div>
             <div class="sync-time">
                 <span class="sync-pulse"></span>
-                <span>Last Sync: 2026-05-23 09:38:24 (KST)</span>
+                <span>Last Sync: 2026-05-23 19:28:26 (KST)</span>
             </div>
         </header>
 
@@ -848,6 +904,28 @@
                 </div>
                 <div class="chart-box">
                     <img src="https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22Mon%22%2C%20%22Tue%22%2C%20%22Wed%22%2C%20%22Thu%22%2C%20%22Fri%22%2C%20%22Sat%22%2C%20%22Sun%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B0.0%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%205%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20true%2C%20%22align%22%3A%20%22end%22%2C%20%22anchor%22%3A%20%22end%22%2C%20%22color%22%3A%20%22%23FC4C02%22%2C%20%22font%22%3A%20%7B%22weight%22%3A%20%22bold%22%2C%20%22size%22%3A%209%7D%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2020%2C%20%22stepSize%22%3A%205%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.2%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.4%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%2011%2C%20%22fontStyle%22%3A%20%22bold%22%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg" alt="Weekly Mileage Chart" />
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Coaching Feedback Loop Card (New premium layout) -->
+        <section>
+            <h2>🤖 AI Coaching Feedback Loop</h2>
+            <div class="loop-card">
+                <div class="loop-step active">
+                    <div class="loop-step-title">1단계: 오늘 오후 권장 훈련 (AI Recommend)</div>
+                    <div class="loop-step-body" id="loop-recommend-title">로딩 중...</div>
+                    <div class="loop-step-desc" id="loop-recommend-desc">주간 계획표를 기반으로 한 코치 추천 훈련입니다.</div>
+                </div>
+                <div class="loop-step" id="loop-step-strava">
+                    <div class="loop-step-title">2단계: 오늘 러닝 실적 연동 (Strava Run Sync)</div>
+                    <div class="loop-step-body" id="loop-strava-title">연동 대기 중</div>
+                    <div class="loop-step-desc" id="loop-strava-desc">러닝 실적이 자동으로 연동되면 녹색 활성 상태로 변경됩니다.</div>
+                </div>
+                <div class="loop-step" id="loop-step-analysis">
+                    <div class="loop-step-title">3단계: AI 피드백 & 다음 러닝 목표 (AI Analysis)</div>
+                    <div class="loop-step-body" id="loop-next-recommend-title">대기 중</div>
+                    <div class="loop-step-desc" id="loop-next-recommend-desc">달리기 기록 연동 완료 후 AI가 내일을 위한 최적의 훈련을 갱신합니다.</div>
                 </div>
             </div>
         </section>
@@ -921,36 +999,66 @@
                     <label for="cond-notes">특이사항 및 메모</label>
                     <input type="text" id="cond-notes" value="" placeholder="예: 어깨가 결림. 오늘은 가볍게 달릴 예정..." />
                 </div>
-                <button class="btn" id="evaluate-btn">
-                    <span>✨ 수정 후 AI 코치 평가받기</span>
-                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn" id="evaluate-btn" style="flex: 3;">
+                        <span>✨ 수정 후 AI 코치 평가받기</span>
+                    </button>
+                    <button class="btn btn-secondary" id="reset-coaching-btn" style="flex: 1; margin-top: 12px;" title="초기 코치 제안으로 되돌리기">
+                        <span>🔄 초기화</span>
+                    </button>
+                </div>
                 <div class="spinner-container" id="ai-loading">
                     <div class="spinner"></div>
-                    <div class="spinner-text">AI 코치가 훈련 세션을 평가하고 있습니다...</div>
+                    <div class="spinner-text">AI 코치가 몸 상태를 고려하여 일정을 재구성하고 있습니다...</div>
                 </div>
             </div>
         </section>
 
-        <!-- Today's Routine checklist -->
+        <!-- Today's Routine 3-Tier block checklist -->
         <section>
-            <h2>🛠️ Routine For Today (보강/스트레칭 블록)</h2>
-            <div id="routine-block-list" class="routine-container-list">
-                <!-- JS로 블록 렌더링 -->
-            </div>
-            
-            <button class="btn btn-secondary" id="open-add-routine-btn" style="margin-top: 10px; border-style: dashed;">
-                <span>➕ 보강운동 라이브러리에서 추가</span>
-            </button>
-
-            <!-- 운동 추가 영역 -->
-            <div class="add-routine-drawer" id="add-routine-drawer">
-                <select id="exercise-library-select">
-                    <option value="">-- 추가할 운동을 골라주세요 --</option>
-                </select>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn" id="add-exercise-confirm" style="margin-top: 0; padding: 8px; font-size: 12px;">추가 완료</button>
-                    <button class="btn btn-secondary" id="add-exercise-cancel" style="margin-top: 0; padding: 8px; font-size: 12px;">취소</button>
+            <h2>🧘‍♂️ Routine For Today (3-Tier 보강 블록)</h2>
+            <div class="progress-card" style="padding: 12px; margin-bottom: 20px;">
+                <!-- 1. Base Tier -->
+                <div class="tier-header tier-header-base">
+                    <span>🟢 Base (기본 이완 & 안정화)</span>
+                    <button class="ctrl-btn" onclick="toggleAddDrawer('Base')" style="font-size:11px; width:auto; height:auto; color:#10b981; font-weight:bold;">➕ 추가</button>
                 </div>
+                <div class="add-routine-drawer-inline" id="add-drawer-Base" style="display:none;">
+                    <select id="select-Base"></select>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn" onclick="addExerciseInline('Base')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">추가 확정</button>
+                        <button class="btn btn-secondary" onclick="toggleAddDrawer('Base')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">취소</button>
+                    </div>
+                </div>
+                <div id="routine-list-Base" class="routine-container-list"></div>
+
+                <!-- 2. Workout Tier -->
+                <div class="tier-header tier-header-workout">
+                    <span>⚡ Workout (근력 & 기능성 훈련)</span>
+                    <button class="ctrl-btn" onclick="toggleAddDrawer('Workout')" style="font-size:11px; width:auto; height:auto; color:#3b82f6; font-weight:bold;">➕ 추가</button>
+                </div>
+                <div class="add-routine-drawer-inline" id="add-drawer-Workout" style="display:none;">
+                    <select id="select-Workout"></select>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn" onclick="addExerciseInline('Workout')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">추가 확정</button>
+                        <button class="btn btn-secondary" onclick="toggleAddDrawer('Workout')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">취소</button>
+                    </div>
+                </div>
+                <div id="routine-list-Workout" class="routine-container-list"></div>
+
+                <!-- 3. Pre-Run Tier -->
+                <div class="tier-header tier-header-prerun">
+                    <span>🏃‍♂️ Pre-Run (러닝 직전 예열 & 활성화)</span>
+                    <button class="ctrl-btn" onclick="toggleAddDrawer('Pre-Run')" style="font-size:11px; width:auto; height:auto; color:#fb7185; font-weight:bold;">➕ 추가</button>
+                </div>
+                <div class="add-routine-drawer-inline" id="add-drawer-Pre-Run" style="display:none;">
+                    <select id="select-Pre-Run"></select>
+                    <div style="display:flex; gap:6px;">
+                        <button class="btn" onclick="addExerciseInline('Pre-Run')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">추가 확정</button>
+                        <button class="btn btn-secondary" onclick="toggleAddDrawer('Pre-Run')" style="margin-top:0; padding:4px; font-size:10px; flex:1;">취소</button>
+                    </div>
+                </div>
+                <div id="routine-list-Pre-Run" class="routine-container-list"></div>
             </div>
         </section>
 
@@ -980,47 +1088,47 @@
     <!-- State & Core Dynamic Script -->
     <script>
         // 1. Python에서 전달된 초기 전역 데이터 바인딩
-        const INITIAL_WEEK_PLAN = [{"day": "월", "type": "완전 휴식", "distance": "-", "intensity": "💤 OFF", "detail": "완전 휴식 및 가벼운 마사지"}, {"day": "화", "type": "이지 조깅", "distance": "6.58 km", "intensity": "🟢 가볍게", "detail": "심박수 135-140 이지 조깅"}, {"day": "수", "type": "빌드업 조깅", "distance": "8.00 km", "intensity": "🟡 중간", "detail": "후반 가속 훈련"}, {"day": "목", "type": "보강 운동", "distance": "-", "intensity": "🟠 코어 집중", "detail": "고관절 기동성 및 코어 보강"}, {"day": "금", "type": "지속주 런", "distance": "10.00 km", "intensity": "🟡 중간", "detail": "일정한 페이스 유지 지속주"}, {"day": "토", "type": "조깅 + 질주", "distance": "5.00 km", "intensity": "🟢 가볍게", "detail": "가벼운 5km 조깅 및 100m 질주 3회"}, {"day": "일", "type": "주말 장거리", "distance": "15.00 km", "intensity": "🟠 약간 높음", "detail": "LSD 마일리지 누적"}];
-        const INITIAL_ROUTINES = [{"name": "90/90 Stretch", "target": "고관절", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬"}, {"name": "Hip Chair Circle", "target": "고관절", "reps": "좌우 각 15회", "sets": "1세트", "tips": "의자 활용 / 고관절 소켓을 부드럽게 열어주기"}, {"name": "Toe Yoga", "target": "발바닥 / 아치", "reps": "좌우 각 10회", "sets": "3세트", "tips": "발바닥 고유수용감각 촉진 및 아치 활성화"}, {"name": "Deadbug", "target": "코어", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건"}, {"name": "Side Plank + Clamshell", "target": "둔근 (중둔근)", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인"}];
+        const INITIAL_WEEK_PLAN = [{"day": "월", "type": "완전 휴식", "distance": "-", "intensity": "💤 OFF", "detail": "완전 휴식 및 폼롤러 마사지"}, {"day": "화", "type": "이지 조깅", "distance": "6.58 km", "intensity": "🟢 가볍게", "detail": "심박수 135-140 편안한 페이스"}, {"day": "수", "type": "빌드업 조깅", "distance": "8.00 km", "intensity": "🟡 중간", "detail": "후반 빌드업 점진 가속"}, {"day": "목", "type": "보강 운동", "distance": "-", "intensity": "🟠 코어 집중", "detail": "코어 강화 및 하체 안정화"}, {"day": "금", "type": "지속주 런", "distance": "10.00 km", "intensity": "🟡 중간", "detail": "페이스 균일 유지 지속주"}, {"day": "토", "type": "조깅 + 질주", "distance": "5.00 km", "intensity": "🟢 가볍게", "detail": "오늘 오후: 5km 조깅 및 100m 질주 3회"}, {"day": "일", "type": "주말 장거리", "distance": "15.00 km", "intensity": "🟠 약간 높음", "detail": "일요 LSD 15km 마일리지 누적"}];
+        const INITIAL_ROUTINES = [{"category": "Base", "name": "Foam Roller Set & Stretching", "target": "하체 전반", "reps": "1~2분 (부위별)", "sets": "1세트", "tips": "폼롤러 / 종아리, 중둔근, 대퇴사두 등 후방 사슬 이완 중심"}, {"category": "Base", "name": "90/90 Stretch", "target": "고관절", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬"}, {"category": "Base", "name": "Ankle Mobility Exercise", "target": "발목", "reps": "12회", "sets": "3세트", "tips": "발목의 전반적인 가동성 확보"}, {"category": "Pre-Run", "name": "Standing Hamstring Sweep", "target": "후방 사슬", "reps": "좌우 각 15회", "sets": "1세트", "tips": "러닝 전 후방 사슬의 예열 및 동적 신장 확보"}, {"category": "Pre-Run", "name": "Pigeon Lift (S-Lunge)", "target": "둔근 / 하체", "reps": "좌우 각 10회", "sets": "3세트", "tips": "힌지 포지션 잡고 엉덩이 힘으로 상체 리프트"}, {"category": "Workout", "name": "Deadbug", "target": "코어", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 바짝 밀착하여 골반 전방경사 방지 코어 활성화"}, {"category": "Workout", "name": "Side Plank + Clamshell", "target": "둔근 (중둔근)", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반을 확실히 고정하고 엉덩이 측면 중둔근 수축 집중"}];
         const STATS_DATA = {"total_may_mileage": 121.5, "total_weekly_mileage": 6.6, "today_run": null, "today_date": "2026-05-23", "today_weekday_idx": 5, "may_chart_url": "https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%221%22%2C%20%222%22%2C%20%223%22%2C%20%224%22%2C%20%225%22%2C%20%226%22%2C%20%227%22%2C%20%228%22%2C%20%229%22%2C%20%2210%22%2C%20%2211%22%2C%20%2212%22%2C%20%2213%22%2C%20%2214%22%2C%20%2215%22%2C%20%2216%22%2C%20%2217%22%2C%20%2218%22%2C%20%2219%22%2C%20%2220%22%2C%20%2221%22%2C%20%2222%22%2C%20%2223%22%2C%20%2224%22%2C%20%2225%22%2C%20%2226%22%2C%20%2227%22%2C%20%2228%22%2C%20%2229%22%2C%20%2230%22%2C%20%2231%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B8.31%2C%207.0%2C%209.0%2C%205.0%2C%2011.42%2C%205.08%2C%200.0%2C%208.74%2C%200.0%2C%2012.82%2C%2010.63%2C%205.39%2C%200.0%2C%208.82%2C%2010.03%2C%200.0%2C%2012.67%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%204%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2018%2C%20%22stepSize%22%3A%206%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.15%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.3%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%209%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg", "week_chart_url": "https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22Mon%22%2C%20%22Tue%22%2C%20%22Wed%22%2C%20%22Thu%22%2C%20%22Fri%22%2C%20%22Sat%22%2C%20%22Sun%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B0.0%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%205%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20true%2C%20%22align%22%3A%20%22end%22%2C%20%22anchor%22%3A%20%22end%22%2C%20%22color%22%3A%20%22%23FC4C02%22%2C%20%22font%22%3A%20%7B%22weight%22%3A%20%22bold%22%2C%20%22size%22%3A%209%7D%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2020%2C%20%22stepSize%22%3A%205%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.2%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.4%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%2011%2C%20%22fontStyle%22%3A%20%22bold%22%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg"};
-        const INITIAL_COACH_COMMENT = "현재 피로도와 컨디션이 매우 양호합니다! 무더운 여름이 다가오기 전에 주 5일 러닝 일정을 잘 소화하시되, 심박수 존 2~3 영역(135-145bpm) 내에서 조깅 마일리지를 차근차근 누적하는 것이 최고의 보약입니다. 러닝 전 웜업 기동성 스트레칭은 부상 방지의 핵심이니 잊지 마세요.";
-        const INITIAL_NEXT_RUNNING = "🏃‍♂️ Next Target: 6~8km 편안한 존2 조깅 (타겟 심박수 138-144bpm)";
+        const INITIAL_COACH_COMMENT = "토요일 오후 훈련은 내일 일요일의 15km 장거리 지속주(LSD)를 대비하여 몸의 기동성을 예열하고 가벼운 혈류 공급을 유도하는 '다리 텐션 깨우기' 조깅입니다. 피로도가 '하'로 쾌조인 만큼 무리해서 속도를 내지 않고 심박수 135-140의 안전 구역 내에서 달린 뒤, 100m 질주 3회로 런 자세를 조율하면 내일 롱런이 한결 가벼워집니다. 웜업 스트레칭을 철저히 동반해 주세요!";
+        const INITIAL_NEXT_RUNNING = "🏃‍♂️ Next Target (일요일): 15km LSD 장거리 조깅 (심박수 138-145 타겟)";
         const CONDITION_DATA = {"피로도": "하", "통증": "없음", "기타": "오늘 퇴근 후 5km 가볍게 조깅 예정. 날씨가 더우니 저녁 7시 이후에 뛸 예정."};
 
-        // 32종의 노션 보강운동 라이브러리 전체 데이터
+        // 32종의 노션 보강운동 라이브러리 전체 데이터 (category가 완벽히 매핑됨)
         const EXERCISE_LIBRARY = [
-            { "target": "하체 전반", "name": "Foam Roller Set & Stretching", "reps": "1~2분 (부위별)", "sets": "1세트", "tips": "폼롤러 / 종아리, 중둔근, 대퇴사두 등 이완 중심" },
-            { "target": "코어", "name": "Deadbug", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건 / 어깨 석회 통증 주의" },
-            { "target": "둔근 (중둔근)", "name": "Side Plank + Clamshell", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인" },
-            { "target": "둔근", "name": "Single Leg Hip Bridge", "reps": "각 10회", "sets": "3세트", "tips": "든 다리 골반이 처지지 않게 수평 유지" },
-            { "target": "종아리 / 발목", "name": "Eccentric Calf Raise", "reps": "15회", "sets": "3세트", "tips": "5초 동안 소리 없이 천천히 뒤꿈치 내리기" },
-            { "target": "고관절", "name": "90/90 Stretch", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬" },
-            { "target": "발목", "name": "Ankle Mobility Exercise", "reps": "12회", "sets": "3세트", "tips": "발목의 전반적인 가동성 확보" },
-            { "target": "햄스트링", "name": "Hamstring Stretch", "reps": "각 1분", "sets": "2세트", "tips": "반동 없이 길게 늘려 후방 사슬 이완" },
-            { "target": "둔근", "name": "Hip Bridge", "reps": "12회", "sets": "3세트", "tips": "골반 수평 유지 및 둔근 시동 (신경계 활성화)" },
-            { "target": "후방 사슬", "name": "Romanian Deadlift", "reps": "10~15회", "sets": "3세트", "tips": "저중량으로 힙힌지 감각 각인 (무릎 고정, 엉덩이 멀리)" },
-            { "target": "하체 / 편측성", "name": "Split Squat", "reps": "각 8회", "sets": "3세트", "tips": "무릎이 안으로 굽지 않게 외회전 토크 유지" },
-            { "target": "하체 / 둔근", "name": "Backward Lunge", "reps": "각 8회", "sets": "3세트", "tips": "덤벨 활용 편측성 훈련" },
-            { "target": "하체 전반", "name": "Goblet Squat", "reps": "12회", "sets": "3세트", "tips": "무릎을 바깥으로 밀어내며 엉덩이 강한 자극" },
-            { "target": "하체 전반", "name": "Weighted Squat", "reps": "12회", "sets": "5세트", "tips": "점진적 과부하 트레이닝" },
-            { "target": "발바닥 / 아치", "name": "Toe Yoga", "reps": "좌우 각 10회", "sets": "3세트", "tips": "발바닥 고유수용감각 촉진 및 아치 활성화" },
-            { "target": "둔근 / 하체", "name": "Pigeon Lift (S-Lunge)", "reps": "좌우 각 10회", "sets": "3세트", "tips": "힌지 포지션 잡고 엉덩이 힘으로 상체 리프트" },
-            { "target": "햄스트링", "name": "Elephant Walk", "reps": "10~20회", "sets": "2세트", "tips": "햄스트링 가벼운 동적 가동성 확보" },
-            { "target": "고관절", "name": "Hip Chair Circle", "reps": "좌우 각 15회", "sets": "1세트", "tips": "의자 활용 / 고관절 소켓을 부드럽게 열어주기" },
-            { "target": "후방 사슬", "name": "Standing Hamstring Sweep", "reps": "좌우 각 15회", "sets": "1세트", "tips": "메인 운동 전 후방 사슬 예열" },
-            { "target": "하체 / 내전근", "name": "Cossack Squat Hold", "reps": "좌우 각 3회", "sets": "1세트", "tips": "10초 정지 / 내전근 능동 활성화" },
-            { "target": "둔근", "name": "Kickback", "reps": "좌우 각 10회", "sets": "3세트", "tips": "둔근 활성 및 러닝 보행 동작 연동" },
-            { "target": "무릎 / 발목", "name": "Tibial Rotation Drill", "reps": "15회", "sets": "3세트", "tips": "무릎 고정하고 정강이뼈만 회전 훈련" },
-            { "target": "대퇴사두", "name": "Foam Roller Quad Setting", "reps": "12회", "sets": "3세트", "tips": "오금으로 짓누르며 허벅지 내측광근 수축" },
-            { "target": "대퇴사두", "name": "Internal Rotation Extension", "reps": "12회", "sets": "3세트", "tips": "내회전 상태로 편측 저항 버티며 내리기" },
-            { "target": "무릎 결합조직", "name": "Lean Forward Isometric Hold", "reps": "20초", "sets": "3세트", "tips": "뒤꿈치 든 채 정적 버티기" },
-            { "target": "하체 협응력", "name": "Bosu Ball Tap & Hold", "reps": "10회", "sets": "3세트", "tips": "불안정한 지면 딛고 발바닥 미세 제어" },
-            { "target": "둔근 / 하체", "name": "Band Diagonal Kickback", "reps": "좌우 각 12회", "sets": "3세트", "tips": "루프 밴드로 엉덩이 측면 및 뒤 활성" },
-            { "target": "하체 / 고관절", "name": "Band Monster Walk", "reps": "사방 10걸음", "sets": "3세트", "tips": "밴드 착용 상태로 사방 걷기" },
-            { "target": "장요근 / 고관절", "name": "Band Hip Flexor Lift", "reps": "좌우 각 12회", "sets": "3세트", "tips": "고관절 및 장요근 굴곡력 강화" },
-            { "target": "플라이오메트릭", "name": "Skate Drill & Landing", "reps": "좌우 각 8회", "sets": "3세트", "tips": "양발 랜딩 후 한발 도약 측면 점프" },
-            { "target": "전신 / 코어", "name": "Forward Lean Walk with Waterbag", "reps": "15걸음", "sets": "3세트", "tips": "워터백 부하 저항 극복 전진" },
-            { "target": "발목 / 민첩성", "name": "Plate Quick Tap", "reps": "좌우 각 15회", "sets": "3세트", "tips": "원판 빠르게 찍고 복귀 발목 탄성 제어" }
+            { "category": "Base", "target": "하체 전반", "name": "Foam Roller Set & Stretching", "reps": "1~2분 (부위별)", "sets": "1세트", "tips": "폼롤러 / 종아리, 중둔근, 대퇴사두 등 이완 중심" },
+            { "category": "Workout", "target": "코어", "name": "Deadbug", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건 / 어깨 석회 통증 주의" },
+            { "category": "Workout", "target": "둔근 (중둔근)", "name": "Side Plank + Clamshell", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인" },
+            { "category": "Workout", "target": "둔근", "name": "Single Leg Hip Bridge", "reps": "각 10회", "sets": "3세트", "tips": "든 다리 골반이 처지지 않게 수평 유지" },
+            { "category": "Workout", "target": "종아리 / 발목", "name": "Eccentric Calf Raise", "reps": "15회", "sets": "3세트", "tips": "5초 동안 소리 없이 천천히 뒤꿈치 내리기" },
+            { "category": "Base", "target": "고관절", "name": "90/90 Stretch", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬" },
+            { "category": "Base", "target": "발목", "name": "Ankle Mobility Exercise", "reps": "12회", "sets": "3세트", "tips": "발목의 전반적인 가동성 확보" },
+            { "category": "Base", "target": "햄스트링", "name": "Hamstring Stretch", "reps": "각 1분", "sets": "2세트", "tips": "반동 없이 길게 늘려 후방 사슬 이완" },
+            { "category": "Pre-Run", "target": "둔근", "name": "Hip Bridge", "reps": "12회", "sets": "3세트", "tips": "골반 수평 유지 및 둔근 시동 (신경계 활성화)" },
+            { "category": "Workout", "target": "후방 사슬", "name": "Romanian Deadlift", "reps": "10~15회", "sets": "3세트", "tips": "저중량으로 힙힌지 감각 각인 (무릎 고정, 엉덩이 멀리)" },
+            { "category": "Workout", "target": "하체 / 편측성", "name": "Split Squat", "reps": "각 8회", "sets": "3세트", "tips": "무릎이 안으로 굽지 않게 외회전 토크 유지" },
+            { "category": "Workout", "target": "하체 / 둔근", "name": "Backward Lunge", "reps": "각 8회", "sets": "3세트", "tips": "덤벨 활용 편측성 훈련" },
+            { "category": "Workout", "target": "하체 전반", "name": "Goblet Squat", "reps": "12회", "sets": "3세트", "tips": "무릎을 바깥으로 밀어내며 엉덩이 강한 자극" },
+            { "category": "Workout", "target": "하체 전반", "name": "Weighted Squat", "reps": "12회", "sets": "5세트", "tips": "점진적 과부하 트레이닝" },
+            { "category": "Base", "target": "발바닥 / 아치", "name": "Toe Yoga", "reps": "좌우 각 10회", "sets": "3세트", "tips": "발바닥 고유수용감각 촉진 및 아치 활성화" },
+            { "category": "Pre-Run", "target": "둔근 / 하체", "name": "Pigeon Lift (S-Lunge)", "reps": "좌우 각 10회", "sets": "3세트", "tips": "힌지 포지션 잡고 엉덩이 힘으로 상체 리프트" },
+            { "category": "Pre-Run", "target": "햄스트링", "name": "Elephant Walk", "reps": "10~20회", "sets": "2세트", "tips": "햄스트링 가벼운 동적 가동성 확보" },
+            { "category": "Base", "target": "고관절", "name": "Hip Chair Circle", "reps": "좌우 각 15회", "sets": "1세트", "tips": "의자 활용 / 고관절 소켓을 부드럽게 열어주기" },
+            { "category": "Pre-Run", "target": "후방 사슬", "name": "Standing Hamstring Sweep", "reps": "좌우 각 15회", "sets": "1세트", "tips": "메인 운동 전 후방 사슬 예열" },
+            { "category": "Workout", "target": "하체 / 내전근", "name": "Cossack Squat Hold", "reps": "좌우 각 3회", "sets": "1세트", "tips": "10초 정지 / 내전근 능동 활성화" },
+            { "category": "Pre-Run", "target": "둔근", "name": "Kickback", "reps": "좌우 각 10회", "sets": "3세트", "tips": "둔근 활성 및 러닝 보행 동작 연동" },
+            { "category": "Base", "target": "무릎 / 발목", "name": "Tibial Rotation Drill", "reps": "15회", "sets": "3세트", "tips": "무릎 고정하고 정강이뼈만 회전 훈련" },
+            { "category": "Base", "target": "대퇴사두", "name": "Foam Roller Quad Setting", "reps": "12회", "sets": "3세트", "tips": "오금으로 짓누르며 허벅지 내측광근 수축" },
+            { "category": "Workout", "target": "대퇴사두", "name": "Internal Rotation Extension", "reps": "12회", "sets": "3세트", "tips": "내회전 상태로 편측 저항 버티며 내리기" },
+            { "category": "Workout", "target": "무릎 결합조직", "name": "Lean Forward Isometric Hold", "reps": "20초", "sets": "3세트", "tips": "뒤꿈치 든 채 정적 버티기" },
+            { "category": "Workout", "target": "하체 협응력", "name": "Bosu Ball Tap & Hold", "reps": "10회", "sets": "3세트", "tips": "불안정한 지면 딛고 발바닥 미세 제어" },
+            { "category": "Workout", "target": "둔근 / 하체", "name": "Band Diagonal Kickback", "reps": "좌우 각 12회", "sets": "3세트", "tips": "루프 밴드로 엉덩이 측면 및 뒤 활성" },
+            { "category": "Workout", "target": "하체 / 고관절", "name": "Band Monster Walk", "reps": "사방 10걸음", "sets": "3세트", "tips": "밴드 착용 상태로 사방 걷기" },
+            { "category": "Workout", "target": "장요근 / 고관절", "name": "Band Hip Flexor Lift", "reps": "좌우 각 12회", "sets": "3세트", "tips": "고관절 및 장요근 굴곡력 강화" },
+            { "category": "Workout", "target": "플라이오메트릭", "name": "Skate Drill & Landing", "reps": "좌우 각 8회", "sets": "3세트", "tips": "양발 랜딩 후 한발 도약 측면 점프" },
+            { "category": "Workout", "target": "전신 / 코어", "name": "Forward Lean Walk with Waterbag", "reps": "15걸음", "sets": "3세트", "tips": "워터백 부하 저항 극복 전진" },
+            { "category": "Pre-Run", "target": "발목 / 민첩성", "name": "Plate Quick Tap", "reps": "좌우 각 15회", "sets": "3세트", "tips": "원판 빠르게 찍고 복귀 발목 탄성 제어" }
         ];
 
         // 2. 어플리케이션 상태(State) 관리 객체
@@ -1030,10 +1138,7 @@
             apiKey: ""
         };
 
-        // 3. 요일 헬퍼
-        const WEEKDAYS_KO = ["월", "화", "수", "목", "금", "토", "일"];
-
-        // 4. 초기화 실행
+        // 3. 초기화 실행
         document.addEventListener('DOMContentLoaded', () => {
             initAppState();
             renderSettingsModal();
@@ -1044,28 +1149,35 @@
             bindEvents();
         });
 
-        // 상태 초기화 (localStorage 우선 로드)
+        // 상태 초기화 (localStorage 우선 로드, 안전 파싱 가드 내장)
         function initAppState() {
-            // API 키
             appState.apiKey = localStorage.getItem('gemini_api_key') || "";
             if (!appState.apiKey && window.LOCAL_GEMINI_API_KEY) {
                 appState.apiKey = window.LOCAL_GEMINI_API_KEY;
                 localStorage.setItem('gemini_api_key', appState.apiKey);
             }
 
-            // 주간 계획
+            // 주간 계획 캐시 파싱 검증 (legacy 스트링 무력화 가드)
             const cachedWeekPlan = localStorage.getItem('project330_week_plan');
-            if (cachedWeekPlan) {
-                appState.weekPlan = JSON.parse(cachedWeekPlan);
+            if (cachedWeekPlan && cachedWeekPlan.startsWith('[')) {
+                try {
+                    appState.weekPlan = JSON.parse(cachedWeekPlan);
+                } catch(e) {
+                    appState.weekPlan = INITIAL_WEEK_PLAN;
+                }
             } else {
                 appState.weekPlan = INITIAL_WEEK_PLAN;
                 localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
             }
 
-            // 보강운동 루틴
+            // 보강운동 루틴 파싱 검증 (legacy 스트링 무력화 가드)
             const cachedRoutines = localStorage.getItem('project330_routines_today');
-            if (cachedRoutines) {
-                appState.routines = JSON.parse(cachedRoutines);
+            if (cachedRoutines && cachedRoutines.startsWith('[')) {
+                try {
+                    appState.routines = JSON.parse(cachedRoutines);
+                } catch(e) {
+                    appState.routines = INITIAL_ROUTINES.map((item, idx) => ({ ...item, id: idx, checked: false }));
+                }
             } else {
                 appState.routines = INITIAL_ROUTINES.map((item, idx) => ({ ...item, id: idx, checked: false }));
                 localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
@@ -1077,7 +1189,7 @@
             document.getElementById('cond-notes').value = CONDITION_DATA.기타 || "";
         }
 
-        // 5. Weekly Plan 테이블 렌더러
+        // 4. Weekly Plan 테이블 렌더러
         function renderWeekPlanTable() {
             const tbody = document.getElementById('week-plan-tbody');
             if (!tbody) return;
@@ -1142,37 +1254,57 @@
             });
         }
 
-        // 6. Daily Running 동적 렌더러
+        // 5. Daily Running & AI Feedback Loop 렌더러
         function renderDailyRunning() {
             const container = document.getElementById('daily-running-container');
             const commentBox = document.getElementById('coach-comment-content');
             const nextRecommendBox = document.getElementById('next-running-content');
             if (!container) return;
 
-            commentBox.innerHTML = localStorage.getItem('project330_coach_comment') || INITIAL_COACH_COMMENT;
-            nextRecommendBox.innerHTML = localStorage.getItem('project330_next_running') || INITIAL_NEXT_RUNNING;
+            const coachComment = localStorage.getItem('project330_coach_comment') || INITIAL_COACH_COMMENT;
+            const nextRecommend = localStorage.getItem('project330_next_running') || INITIAL_NEXT_RUNNING;
+
+            commentBox.innerHTML = coachComment;
+            nextRecommendBox.innerHTML = nextRecommend;
+
+            // AI Feedback Loop 상태 주입
+            const todayIdx = STATS_DATA.today_weekday_idx;
+            const todayPlan = appState.weekPlan[todayIdx] || { type: "완전 휴식", distance: "-", intensity: "💤 OFF" };
+            
+            // Step 1: AI의 추천 훈련 채워넣기
+            document.getElementById('loop-recommend-title').innerHTML = `🏃‍♂️ 오늘 예정: ${todayPlan.type} (${todayPlan.distance})`;
 
             const todayRun = STATS_DATA.today_run;
             if (todayRun) {
+                // Strava 연동 활성화 상태 렌더
+                document.getElementById('loop-step-strava').classList.add('active');
+                document.getElementById('loop-step-strava').querySelector('.loop-step-title').innerHTML = "2단계: 오늘 러닝 실적 연동 완료! (Strava Run Synced) ✅";
                 const distKm = (todayRun.distance / 1000.0).toFixed(2);
-                const movingMin = Math.floor(todayRun.moving_time / 60);
-                
+                document.getElementById('loop-strava-title').innerHTML = `⚡ ${distKm}km 달리기 완료!`;
+                document.getElementById('loop-strava-desc').innerHTML = `이름: ${todayRun.name} / 심박수: ${todayRun.average_heartrate || "-"}bpm`;
+
+                // Step 3 활성화
+                document.getElementById('loop-step-analysis').classList.add('active');
+                document.getElementById('loop-next-recommend-title').innerHTML = nextRecommend;
+                document.getElementById('loop-next-recommend-desc').innerHTML = "AI 코치가 오늘 훈련의 심박수와 거리를 분석하여 도출한 다음 훈련 가이드입니다.";
+
+                // Daily Running 세부 정보 카드 출력
+                const distKmVal = (todayRun.distance / 1000.0).toFixed(2);
+                const totalSec = todayRun.moving_time;
                 let paceMin = 0;
                 let paceSec = 0;
-                if (parseFloat(distKm) > 0) {
-                    const totalSec = todayRun.moving_time;
-                    const secPerKm = totalSec / parseFloat(distKm);
+                if (parseFloat(distKmVal) > 0) {
+                    const secPerKm = totalSec / parseFloat(distKmVal);
                     paceMin = Math.floor(secPerKm / 60);
                     paceSec = Math.round(secPerKm % 60);
                 }
-                
                 const avgHr = todayRun.average_heartrate || "-";
 
                 container.innerHTML = `
                     <div class="stat-grid">
                         <div class="stat-card">
                             <div class="stat-title">실제 거리</div>
-                            <div class="stat-value">${distKm} <span class="stat-unit">km</span></div>
+                            <div class="stat-value">${distKmVal} <span class="stat-unit">km</span></div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-title">실제 페이스</div>
@@ -1184,108 +1316,135 @@
                         </div>
                     </div>
                 `;
-                return;
-            }
-
-            const todayIdx = STATS_DATA.today_weekday_idx;
-            const todayPlan = appState.weekPlan[todayIdx] || { type: "완전 휴식", distance: "-", intensity: "💤 OFF", detail: "휴식" };
-
-            if (todayPlan.intensity.includes("OFF") || todayPlan.type.includes("휴식")) {
-                container.innerHTML = `
-                    <div class="rest-card">
-                        <span class="rest-icon">💤</span>
-                        <div class="rest-title">Today is a Rest Day! (계획된 휴식)</div>
-                        <div class="rest-desc">근섬유의 재건과 피로 회복도 훈련의 연장선입니다. 폼롤러나 코어 보강운동에 집중해 주세요.</div>
-                    </div>
-                `;
             } else {
-                container.innerHTML = `
-                    <div class="rest-card" style="background: rgba(252,76,2,0.03); border: 1px dashed rgba(252,76,2,0.4);">
-                        <span class="rest-icon">🏃‍♂️</span>
-                        <div class="rest-title" style="color: var(--primary);">오늘 예정된 본운동: ${todayPlan.type} (${todayPlan.distance})</div>
-                        <div class="rest-desc" style="color: #fff; font-weight:500; margin-top: 6px;">아직 오늘 달린 러닝 기록이 스트라바에 연동되지 않았습니다.</div>
-                        <div class="rest-desc" style="font-size: 11px; margin-top: 2px;">운동을 마친 후 자동으로 동기화되거나, 아래 보강 루틴을 먼저 실천해 보세요!</div>
-                    </div>
-                `;
+                // Strava 비연동 상태 렌더
+                document.getElementById('loop-step-strava').classList.remove('active');
+                document.getElementById('loop-step-strava').querySelector('.loop-step-title').innerHTML = "2단계: 오늘 러닝 실적 연동 (Strava Run Sync)";
+                document.getElementById('loop-strava-title').innerHTML = "연동 대기 중";
+                document.getElementById('loop-strava-desc').innerHTML = "러닝 실적이 자동으로 연동되면 녹색 활성 상태로 변경됩니다.";
+
+                document.getElementById('loop-step-analysis').classList.remove('active');
+                document.getElementById('loop-next-recommend-title').innerHTML = "훈련 결과 대기 중";
+                document.getElementById('loop-next-recommend-desc').innerHTML = "달리기 기록 연동 완료 후 AI가 내일을 위한 최적의 훈련을 갱신합니다.";
+
+                if (todayPlan.intensity.includes("OFF") || todayPlan.type.includes("휴식")) {
+                    container.innerHTML = `
+                        <div class="rest-card">
+                            <span class="rest-icon">💤</span>
+                            <div class="rest-title">Today is a Rest Day! (계획된 휴식)</div>
+                            <div class="rest-desc">근섬유의 재건과 피로 회복도 훈련의 연장선입니다. 폼롤러나 코어 보강운동에 집중해 주세요.</div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `
+                        <div class="rest-card" style="background: rgba(252,76,2,0.03); border: 1px dashed rgba(252,76,2,0.4);">
+                            <span class="rest-icon">🏃‍♂️</span>
+                            <div class="rest-title" style="color: var(--primary);">오늘 오후 예정된 본운동: ${todayPlan.type} (${todayPlan.distance})</div>
+                            <div class="rest-desc" style="color: #fff; font-weight:500; margin-top: 6px;">아직 오늘 달린 러닝 기록이 스트라바에 연동되지 않았습니다.</div>
+                            <div class="rest-desc" style="font-size: 11px; margin-top: 2px;">운동을 마친 후 자동으로 동기화되거나, 아래 3-Tier 보강 루틴을 먼저 실천해 보세요!</div>
+                        </div>
+                    `;
+                }
             }
         }
 
-        // 7. Routine 블록형 렌더러
+        // 6. 3-Tier 보강/스트레칭 블록 렌더러
         function renderRoutines() {
-            const list = document.getElementById('routine-block-list');
-            if (!list) return;
+            const tiers = ["Base", "Workout", "Pre-Run"];
+            
+            tiers.forEach(tier => {
+                const listContainer = document.getElementById(`routine-list-${tier}`);
+                if (!listContainer) return;
 
-            list.innerHTML = "";
+                listContainer.innerHTML = "";
+                const filtered = appState.routines.filter(item => item.category === tier);
 
-            if (appState.routines.length === 0) {
-                list.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size:12px; padding: 20px;">오늘 예정된 보강 운동이 비어있습니다. 라이브러리에서 자유롭게 추가해 보세요!</p>`;
-                return;
-            }
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size:11px; padding: 10px;">선택된 ${tier} 운동 블록이 없습니다. 오른쪽의 추가 버튼을 이용하세요.</p>`;
+                    return;
+                }
 
-            appState.routines.forEach((item, index) => {
-                let badgeClass = "badge-general";
-                if (item.target.includes("코어")) badgeClass = "badge-core";
-                else if (item.target.includes("하체") || item.target.includes("둔근") || item.target.includes("햄스트링")) badgeClass = "badge-lower";
-                else if (item.target.includes("발목") || item.target.includes("종아리")) badgeClass = "badge-ankle";
+                filtered.forEach((item, index) => {
+                    let badgeClass = "badge-general";
+                    if (item.target.includes("코어")) badgeClass = "badge-core";
+                    else if (item.target.includes("하체") || item.target.includes("둔근") || item.target.includes("햄스트링")) badgeClass = "badge-lower";
+                    else if (item.target.includes("발목") || item.target.includes("종아리")) badgeClass = "badge-ankle";
 
-                const block = document.createElement('div');
-                block.className = `routine-block ${item.checked ? 'completed' : ''}`;
-                block.dataset.id = item.id;
+                    const block = document.createElement('div');
+                    block.className = `routine-block ${item.checked ? 'completed' : ''}`;
+                    block.dataset.id = item.id;
 
-                block.innerHTML = `
-                    <div class="routine-check">
-                        <input type="checkbox" id="check_${item.id}" ${item.checked ? 'checked' : ''}>
-                    </div>
-                    <div class="routine-details-box">
-                        <div class="routine-meta-row">
-                            <span class="routine-badge ${badgeClass}">${item.target}</span>
-                            <span class="routine-sets-reps">${item.sets} x ${item.reps}</span>
+                    block.innerHTML = `
+                        <div class="routine-check">
+                            <input type="checkbox" id="check_${item.id}" ${item.checked ? 'checked' : ''}>
                         </div>
-                        <span class="routine-name" id="name_text_${item.id}">${item.name}</span>
-                        <span class="routine-tips" id="tips_text_${item.id}">${item.tips}</span>
-                    </div>
-                    
-                    <div class="routine-controls">
-                        <button class="ctrl-btn" onclick="moveRoutine(${index}, -1)" title="위로 이동">▲</button>
-                        <button class="ctrl-btn" onclick="moveRoutine(${index}, 1)" title="아래로 이동">▼</button>
-                        <button class="ctrl-btn" onclick="editRoutineInline(${item.id})" title="상세 편집">✏️</button>
-                        <button class="ctrl-btn btn-delete" onclick="deleteRoutine(${item.id})" title="삭제">🗑️</button>
-                    </div>
-                `;
+                        <div class="routine-details-box">
+                            <div class="routine-meta-row">
+                                <span class="routine-badge ${badgeClass}">${item.target}</span>
+                                <span class="routine-sets-reps">${item.sets} x ${item.reps}</span>
+                            </div>
+                            <span class="routine-name">${item.name}</span>
+                            <span class="routine-tips">${item.tips}</span>
+                        </div>
+                        
+                        <div class="routine-controls">
+                            <button class="ctrl-btn" onclick="moveRoutine(${item.id}, -1)" title="위로 이동">▲</button>
+                            <button class="ctrl-btn" onclick="moveRoutine(${item.id}, 1)" title="아래로 이동">▼</button>
+                            <button class="ctrl-btn" onclick="editRoutineInline(${item.id})" title="편집">✏️</button>
+                            <button class="ctrl-btn btn-delete" onclick="deleteRoutine(${item.id})" title="제거">×</button>
+                        </div>
+                    `;
 
-                const checkbox = block.querySelector('input[type="checkbox"]');
-                checkbox.addEventListener('change', (e) => {
-                    item.checked = e.target.checked;
-                    if (item.checked) {
-                        block.classList.add('completed');
-                    } else {
-                        block.classList.remove('completed');
-                    }
-                    localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+                    const checkbox = block.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', (e) => {
+                        item.checked = e.target.checked;
+                        if (item.checked) {
+                            block.classList.add('completed');
+                        } else {
+                            block.classList.remove('completed');
+                        }
+                        localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+                    });
+
+                    listContainer.appendChild(block);
                 });
-
-                list.appendChild(block);
             });
         }
 
-        window.moveRoutine = function(index, direction) {
+        // 루틴 블록 순서 조정 (해당 티어 범위 내에서 작동)
+        window.moveRoutine = function(id, direction) {
+            const item = appState.routines.find(r => r.id === id);
+            if (!item) return;
+            
+            const tier = item.category;
+            const filtered = appState.routines.filter(r => r.category === tier);
+            const index = filtered.findIndex(r => r.id === id);
             const targetIndex = index + direction;
-            if (targetIndex < 0 || targetIndex >= appState.routines.length) return;
-
-            const temp = appState.routines[index];
-            appState.routines[index] = appState.routines[targetIndex];
-            appState.routines[targetIndex] = temp;
+            if (targetIndex < 0 || targetIndex >= filtered.length) return;
+            
+            const id1 = filtered[index].id;
+            const id2 = filtered[targetIndex].id;
+            
+            const idx1 = appState.routines.findIndex(r => r.id === id1);
+            const idx2 = appState.routines.findIndex(r => r.id === id2);
+            
+            // 위치 변경
+            const temp = appState.routines[idx1];
+            appState.routines[idx1] = appState.routines[idx2];
+            appState.routines[idx2] = temp;
 
             localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
             renderRoutines();
         };
 
+        // 루틴 블록 삭제 (X 클릭 시)
         window.deleteRoutine = function(id) {
             appState.routines = appState.routines.filter(item => item.id !== id);
             localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
             renderRoutines();
         };
 
+        // 루틴 블록 편집
         window.editRoutineInline = function(id) {
             const item = appState.routines.find(x => x.id === id);
             if (!item) return;
@@ -1305,22 +1464,37 @@
             renderRoutines();
         };
 
-        // 8. 노션 보강운동 32종 라이브러리 드롭다운 세팅
+        // 7. 각 티어별 인라인 운동 리스트 팝업 구성
         function setupAddExerciseLibrary() {
-            const select = document.getElementById('exercise-library-select');
-            if (!select) return;
-
-            EXERCISE_LIBRARY.forEach((ex, idx) => {
-                const opt = document.createElement('option');
-                opt.value = idx;
-                opt.textContent = `[${ex.target}] ${ex.name} (${ex.sets} x ${ex.reps})`;
-                select.appendChild(opt);
+            const tiers = ["Base", "Workout", "Pre-Run"];
+            
+            tiers.forEach(tier => {
+                const select = document.getElementById(`select-${tier}`);
+                if (!select) return;
+                
+                select.innerHTML = `<option value="">-- ${tier} 라이브러리 운동 선택 --</option>`;
+                
+                EXERCISE_LIBRARY.filter(ex => ex.category === tier).forEach((ex, idx) => {
+                    const opt = document.createElement('option');
+                    // EXERCISE_LIBRARY 에서의 절대 인덱스 활용
+                    const globalIdx = EXERCISE_LIBRARY.findIndex(x => x.name === ex.name);
+                    opt.value = globalIdx;
+                    opt.textContent = `[${ex.target}] ${ex.name} (${ex.sets} x ${ex.reps})`;
+                    select.appendChild(opt);
+                });
             });
         }
 
-        // 9. 라이브러리 운동 신규 추가 처리
-        function confirmAddExercise() {
-            const select = document.getElementById('exercise-library-select');
+        // 인라인 추가 드로어 토글
+        window.toggleAddDrawer = function(tier) {
+            const drawer = document.getElementById(`add-drawer-${tier}`);
+            if (!drawer) return;
+            drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // 3-Tier 특정 그룹에 신규 운동 추가 수행
+        window.addExerciseInline = function(tier) {
+            const select = document.getElementById(`select-${tier}`);
             const val = select.value;
             if (val === "") return;
 
@@ -1329,6 +1503,7 @@
             
             const newBlock = {
                 id: maxId + 1,
+                category: tier,
                 target: selectedEx.target,
                 name: selectedEx.name,
                 sets: selectedEx.sets,
@@ -1342,10 +1517,26 @@
             renderRoutines();
 
             select.value = "";
-            document.getElementById('add-routine-drawer').style.display = 'none';
+            toggleAddDrawer(tier);
+        };
+
+        // 8. 초기 코치 추천 데이터 상태로 완전히 되돌리기 (Escape hatch)
+        function resetToOriginalCoachRecommendation() {
+            if (confirm("정말로 모든 사용자 설정(주간 계획표 수정, 보강운동 체크/추가 상태)을 지우고 AI 코치의 최초 추천 훈련과 보강운동 루틴으로 되돌리시겠습니까?")) {
+                localStorage.removeItem('project330_week_plan');
+                localStorage.removeItem('project330_routines_today');
+                localStorage.removeItem('project330_coach_comment');
+                localStorage.removeItem('project330_next_running');
+                
+                initAppState();
+                renderWeekPlanTable();
+                renderDailyRunning();
+                renderRoutines();
+                alert("🔄 AI 코치 최초 제안 데이터로 안전하게 초기화되었습니다!");
+            }
         }
 
-        // 10. API Key 설정 및 모달 관리
+        // 9. API Key 설정 및 모달 관리
         function renderSettingsModal() {
             const input = document.getElementById('api-key-input');
             if (input) {
@@ -1362,7 +1553,7 @@
             }
         }
 
-        // 11. 수정 후 AI 코치 평가받기 (Gemini API 실시간 AJAX 클라이언트 추론)
+        // 10. 수정 후 AI 코치 평가받기 (Gemini API 실시간 AJAX 클라이언트 추론 - 몸상태별 주간계획표 자동 재분배 탑재)
         async function runAIEvaluation() {
             if (!appState.apiKey) {
                 alert("Gemini API Key를 먼저 설정해 주세요! 우측 상단의 ⚙️ 아이콘을 누르면 쉽게 등록할 수 있습니다.");
@@ -1380,14 +1571,12 @@
             const pain = document.getElementById('cond-pain').value;
             const notes = document.getElementById('cond-notes').value;
 
-            // 로컬 condition 파일도 시뮬레이션용으로 즉시 UI 동기화
             const formattedPlan = appState.weekPlan.map(p => `요일: ${p.day}요일, 종류: ${p.type}, 목표 거리: ${p.distance}, 강도: ${p.intensity}`).join("
 ");
             
             const prompt = `
 역할: 전문 마라톤 코치이자 부상 방지 재활 및 임산부/육아 러닝 전문가.
 사용자의 배경 정보:
-- 러닝 숙련도: 2022년부터 마라톤 풀코스 PR 3시간 46분 24초 보유자. (숙련된 서브 4 러너)
 - 미래 목표: 2027년 3월 서울마라톤 풀코스 3시간 30분(Project330) 목표.
 - 현실적 제약 및 특별 상황: 2026년 9월 출산 예정. 이후 육아 동반 예정으로, 강도 높은 하드 트레이닝보다는 "부상 없이 여름철을 나며 보강운동을 병행하고 장거리를 소화할 수 있는 튼튼한 하체와 코어 몸 만들기"가 핵심 목표.
 - 현재 날짜: ${STATS_DATA.today_date}
@@ -1400,13 +1589,25 @@ ${formattedPlan}
 - 통증 여부: ${pain}
 - 메모 및 특이사항: ${notes}
 
-위 상황을 고도로 분석하여 전문 코치로서 수정된 계획이 안전한지, 목표에 부합하는지 꼼꼼하게 평가해 주세요.
+[중요 지시 사항]:
+사용자의 피로도가 '상'이거나 통증 부위가 '없음'이 아닌 경우(예: 무릎, 아킬레스건 통증), 전문 코치로서 수정된 계획이 안전한지 철저하게 검토하세요. 부상 악화를 방지하기 위해 오늘 이후의 주간 계획 항목(특히 일요일 장거리 훈련)에 대하여 타당한 조정을 가하여 자동으로 재스케줄링된 주간 계획표 배열(week_plan)을 함께 응답해 주세요. (예: 아킬레스건 통증 시, 일요일 15km 장거리를 5km 이지 러닝 또는 완전 휴식/보강운동으로 낮추어 week_plan 값을 리턴할 것)
+
 반드시 아래 JSON 형식 명칭을 지켜 오직 **순수 JSON**으로만 응답해 주세요. 백틱(markdown block)을 절대로 붙이지 마세요.
 
 출력 JSON 형식:
 {
-  "coach_comment": "사용자의 피로도, 통증, 오늘 달리기 결과, 그리고 임신/출산 상황을 다정하고 따뜻하게 격려하면서도 수정된 훈련계획의 타당성을 러닝 생리학적으로 분석해주는 3~4줄의 조언",
-  "next_running": "수정된 계획과 오늘의 몸 상태에 기초한 다음 목표 훈련 가이드 한 줄 요약 (예: '🏃‍♂️ Next Target: 5km 가벼운 리커버리 조깅 (평균 심박수 135-140 유지)')"
+  "coach_comment": "사용자의 피로도, 통증, 오늘 달리기 결과, 그리고 임신/출산 상황을 다정하고 따뜻하게 격려하면서도 수정/조정된 훈련계획의 타당성을 러닝 생리학적으로 분석해주는 3~4줄의 조언",
+  "next_running": "수정된 계획과 오늘의 몸 상태에 기초한 다음 목표 훈련 가이드 한 줄 요약 (예: '🏃‍♂️ Next Target: 5km 가벼운 리커버리 조깅 (평균 심박수 135-140 유지)')",
+  "week_plan": [
+    {
+      "day": "월",
+      "type": "훈련 종류",
+      "distance": "목표 거리",
+      "intensity": "강도 표시",
+      "detail": "세부 설명"
+    },
+    ... (월요일부터 일요일까지 몸 상태에 맞춰 완전히 재분배된 7일간의 계획표 객체 리스트 순서대로)
+  ]
 }
 `;
 
@@ -1446,11 +1647,19 @@ ${formattedPlan}
 
                 const parsedAI = JSON.parse(text);
 
+                // 로컬 상태 동기화 및 바인딩
                 localStorage.setItem('project330_coach_comment', parsedAI.coach_comment);
                 localStorage.setItem('project330_next_running', parsedAI.next_running);
+                
+                if (parsedAI.week_plan && Array.isArray(parsedAI.week_plan)) {
+                    appState.weekPlan = parsedAI.week_plan;
+                    localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
+                }
 
+                // UI 리렌더링
+                renderWeekPlanTable();
                 renderDailyRunning();
-                alert("🎉 AI 코치님의 주간 계획표 및 당일 컨디션 평가가 성공적으로 업데이트되었습니다!");
+                alert("🎉 AI 코치님이 몸 상태에 맞게 전체 주간 계획표를 안전하게 조정하고 오늘의 처방을 갱신하였습니다!");
 
             } catch (error) {
                 console.error("Gemini AI API Call Failure:", error);
@@ -1462,7 +1671,7 @@ ${formattedPlan}
             }
         }
 
-        // 12. 전체 클릭 이벤트 처리 바인딩
+        // 11. 전체 클릭 이벤트 처리 바인딩
         function bindEvents() {
             document.getElementById('open-settings-btn').addEventListener('click', () => toggleSettingsModal(true));
             document.getElementById('close-settings-btn').addEventListener('click', () => toggleSettingsModal(false));
@@ -1475,17 +1684,8 @@ ${formattedPlan}
                 toggleSettingsModal(false);
             });
 
-            document.getElementById('open-add-routine-btn').addEventListener('click', () => {
-                const drawer = document.getElementById('add-routine-drawer');
-                drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
-            });
-
-            document.getElementById('add-exercise-cancel').addEventListener('click', () => {
-                document.getElementById('add-routine-drawer').style.display = 'none';
-            });
-            document.getElementById('add-exercise-confirm').addEventListener('click', confirmAddExercise);
-
             document.getElementById('evaluate-btn').addEventListener('click', runAIEvaluation);
+            document.getElementById('reset-coaching-btn').addEventListener('click', resetToOriginalCoachRecommendation);
         }
     </script>
 </body>
