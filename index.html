@@ -18,6 +18,10 @@
             --card-border: rgba(255, 255, 255, 0.08);
             --text: #e5e7eb;
             --text-muted: #9ca3af;
+            --badge-green: rgba(16, 185, 129, 0.2);
+            --badge-yellow: rgba(245, 158, 11, 0.2);
+            --badge-orange: rgba(249, 115, 22, 0.2);
+            --badge-red: rgba(239, 68, 68, 0.2);
         }
 
         * {
@@ -52,12 +56,14 @@
             border-radius: 24px;
             padding: 24px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255,255,255,0.1);
+            position: relative;
         }
 
         /* Header */
         header {
             text-align: center;
             margin-bottom: 25px;
+            position: relative;
         }
 
         .brand {
@@ -103,6 +109,29 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
+        /* Settings Floating Button */
+        .settings-btn {
+            position: absolute;
+            right: 0;
+            top: 4px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .settings-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
         /* Section Global */
         section {
             margin-bottom: 28px;
@@ -110,7 +139,7 @@
 
         h2 {
             font-family: 'Outfit', sans-serif;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
             color: #fff;
             margin-bottom: 12px;
@@ -135,7 +164,7 @@
             justify-content: space-between;
             align-items: baseline;
             margin-bottom: 8px;
-        }
+        }}
 
         .progress-title {
             font-size: 13px;
@@ -152,11 +181,6 @@
 
         .progress-value span {
             color: var(--primary);
-        }
-
-        .progress-target {
-            font-size: 12px;
-            color: var(--text-muted);
         }
 
         .progress-bar-container {
@@ -183,6 +207,10 @@
             padding: 10px;
             border-radius: 12px;
             border: 1px solid rgba(255,255,255,0.03);
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .chart-box img {
@@ -262,14 +290,71 @@
             overflow-x: auto;
         }
 
+        .week-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .week-table th {
+            padding: 8px 4px;
+            border-bottom: 1px solid #444;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .week-table td {
+            padding: 8px 4px;
+            border-bottom: 1px solid #2a2a2a;
+            vertical-align: middle;
+            color: #fff;
+        }
+
+        .week-table input[type="text"] {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 4px;
+            padding: 3px 6px;
+            font-size: 12px;
+            width: 100%;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .week-table input[type="text"]:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .week-table select {
+            background: #1e1e24;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .week-table tr.active-today td {
+            background: rgba(252, 76, 2, 0.07);
+        }
+        .week-table tr.active-today td:first-child {
+            border-left: 3px solid var(--primary);
+        }
+
         /* Coach's Comment Block */
         .coach-comment-box {
             background: rgba(252, 76, 2, 0.07);
             border-left: 4px solid var(--primary);
             border-radius: 4px 14px 14px 4px;
             padding: 14px;
-            font-style: normal;
-            font-size: 13.5px;
+            font-size: 13px;
             color: #f3f4f6;
             margin: 15px 0;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -296,72 +381,400 @@
             font-weight: 500;
             color: #fff;
             box-shadow: 0 4px 10px var(--primary-glow);
+            margin-top: 10px;
         }
 
-        /* Interactive Routine checklist */
-        .routine-card {
+        /* Action Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background: linear-gradient(90deg, #ff7e40, var(--primary));
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 76, 2, 0.5);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: none;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Condition Editor */
+        .condition-editor-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 16px;
+            padding: 14px;
+            margin-bottom: 20px;
         }
 
-        .routine-card ul {
-            list-style: none;
-            margin-top: 6px;
-            margin-bottom: 12px;
-        }
-
-        .routine-card li {
-            display: flex;
-            align-items: flex-start;
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 10px;
-            font-size: 13px;
-            color: #d1d5db;
-            cursor: pointer;
+        }
+        
+        .input-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-item label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .input-item select, .input-item input {
+            background: #1e1e24;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .notes-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .notes-item label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .notes-item input {
+            background: #1e1e24;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            outline: none;
+            width: 100%;
+        }
+
+        /* Block Routine checklist */
+        .routine-container-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .routine-block {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 14px;
+            position: relative;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
             user-select: none;
         }
 
-        .routine-card li input[type="checkbox"] {
+        .routine-block.completed {
+            border-color: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.03);
+        }
+
+        .routine-block.completed .routine-details-box span.routine-name {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .routine-check {
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .routine-check input[type="checkbox"] {
             appearance: none;
             -webkit-appearance: none;
-            width: 17px;
-            height: 17px;
+            width: 19px;
+            height: 19px;
             border: 2px solid var(--text-muted);
-            border-radius: 4px;
+            border-radius: 6px;
             outline: none;
             background-color: transparent;
             cursor: pointer;
             display: grid;
             place-content: center;
-            margin-top: 1.5px;
-            flex-shrink: 0;
             transition: all 0.2s ease;
         }
 
-        .routine-card li input[type="checkbox"]::before {
+        .routine-check input[type="checkbox"]::before {
             content: "✓";
-            font-size: 11px;
+            font-size: 12px;
             font-weight: bold;
             color: #fff;
             transform: scale(0);
             transition: transform 0.15s ease-in-out;
         }
 
-        .routine-card li input[type="checkbox"]:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 0 8px var(--primary-glow);
+        .routine-check input[type="checkbox"]:checked {
+            background-color: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
         }
 
-        .routine-card li input[type="checkbox"]:checked::before {
+        .routine-check input[type="checkbox"]:checked::before {
             transform: scale(1);
         }
 
-        .routine-card li.completed span {
-            text-decoration: line-through;
+        .routine-details-box {
+            flex-grow: 1;
+        }
+
+        .routine-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+
+        .routine-badge {
+            font-size: 9px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        .badge-core { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); }
+        .badge-lower { background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); }
+        .badge-ankle { background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.4); }
+        .badge-general { background: rgba(107, 114, 128, 0.2); border: 1px solid rgba(107, 114, 128, 0.4); }
+
+        .routine-sets-reps {
+            font-size: 10px;
             color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .routine-name {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fff;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .routine-tips {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.4;
+            display: block;
+        }
+
+        .routine-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-left: 8px;
+            flex-shrink: 0;
+            opacity: 0.3;
+            transition: opacity 0.2s ease;
+        }
+
+        .routine-block:hover .routine-controls {
+            opacity: 1;
+        }
+
+        .ctrl-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+        }
+        .ctrl-btn.btn-delete:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        /* Modal / Overlay Settings */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: rgba(25, 25, 30, 0.85);
+            border: 1px solid var(--card-border);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-body p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-body input[type="password"], .modal-body input[type="text"] {
+            background: #1e1e24;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            width: 100%;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 13px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .modal-body input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Loading Spinner */
+        .spinner-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(252, 76, 2, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        .spinner-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 10px;
+            font-weight: 500;
+        }
+
+        /* Add Exercise Dropdown Card */
+        .add-routine-drawer {
+            margin-top: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 12px;
+            display: none;
+            animation: slideDown 0.25s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .add-routine-drawer select {
+            background: #1e1e24;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            outline: none;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 10px;
         }
 
         /* Footer */
@@ -391,15 +804,20 @@
             border-radius: 99px;
         }
     </style>
+    <!-- Local API Key Config Loader (In gitignore) -->
+    <script src="api_key.js" onerror="console.log('Local api_key.js not found - using localStorage')"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Settings Button -->
+        <button class="settings-btn" id="open-settings-btn" title="AI API Key 설정">⚙️</button>
+
         <!-- Header -->
         <header>
             <div class="brand">🏃‍♂️ Project <span>330</span></div>
             <div class="sync-time">
                 <span class="sync-pulse"></span>
-                <span>Last Sync: 2026-05-23 00:16:38 (KST)</span>
+                <span>Last Sync: 2026-05-23 09:38:24 (KST)</span>
             </div>
         </header>
 
@@ -409,13 +827,13 @@
             <div class="progress-card">
                 <div class="progress-header">
                     <span class="progress-title">목표 달성률</span>
-                    <span class="progress-value"><span>121.5</span> / 200 km</span>
+                    <span class="progress-value"><span id="may-mileage-val">121.5</span> / 200 km</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 60%;"></div>
+                    <div class="progress-bar" id="may-progress-bar" style="width: 60%;"></div>
                 </div>
                 <div class="chart-box">
-                    <img src="https://quickchart.io/chart?c={"type": "bar", "data": {"labels": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"], "datasets": [{"data": [8.31, 7.0, 9.0, 5.0, 11.42, 5.08, 0.0, 8.74, 0.0, 12.82, 10.63, 5.39, 0.0, 8.82, 10.03, 0.0, 12.67, 0.0, 6.58, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "backgroundColor": "#FC4C02", "borderRadius": 4, "datalabels": {"display": false}}]}, "options": {"title": {"display": false}, "legend": {"display": false}, "scales": {"yAxes": [{"ticks": {"beginAtZero": true, "max": 18, "stepSize": 6, "fontColor": "#888888"}, "gridLines": {"color": "rgba(252, 76, 2, 0.15)", "zeroLineColor": "rgba(252, 76, 2, 0.3)"}}], "xAxes": [{"ticks": {"fontColor": "#888888", "fontSize": 9}, "gridLines": {"display": false}}]}, "plugins": {"datalabels": false}}}&format=svg" alt="May Mileage Chart" />
+                    <img src="https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%221%22%2C%20%222%22%2C%20%223%22%2C%20%224%22%2C%20%225%22%2C%20%226%22%2C%20%227%22%2C%20%228%22%2C%20%229%22%2C%20%2210%22%2C%20%2211%22%2C%20%2212%22%2C%20%2213%22%2C%20%2214%22%2C%20%2215%22%2C%20%2216%22%2C%20%2217%22%2C%20%2218%22%2C%20%2219%22%2C%20%2220%22%2C%20%2221%22%2C%20%2222%22%2C%20%2223%22%2C%20%2224%22%2C%20%2225%22%2C%20%2226%22%2C%20%2227%22%2C%20%2228%22%2C%20%2229%22%2C%20%2230%22%2C%20%2231%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B8.31%2C%207.0%2C%209.0%2C%205.0%2C%2011.42%2C%205.08%2C%200.0%2C%208.74%2C%200.0%2C%2012.82%2C%2010.63%2C%205.39%2C%200.0%2C%208.82%2C%2010.03%2C%200.0%2C%2012.67%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%204%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2018%2C%20%22stepSize%22%3A%206%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.15%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.3%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%209%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg" alt="May Mileage Chart" />
                 </div>
             </div>
 
@@ -423,151 +841,652 @@
             <div class="progress-card">
                 <div class="progress-header">
                     <span class="progress-title">목표 달성률</span>
-                    <span class="progress-value"><span>6.6</span> / 50 km</span>
+                    <span class="progress-value"><span id="week-mileage-val">6.6</span> / 50 km</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: 13%;"></div>
+                    <div class="progress-bar" id="week-progress-bar" style="width: 13%;"></div>
                 </div>
                 <div class="chart-box">
-                    <img src="https://quickchart.io/chart?c={"type": "bar", "data": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "datasets": [{"data": [0.0, 0.0, 6.58, 0.0, 0.0, 0.0, 0.0], "backgroundColor": "#FC4C02", "borderRadius": 5, "datalabels": {"display": true, "align": "end", "anchor": "end", "color": "#FC4C02", "font": {"weight": "bold", "size": 9}}}]}, "options": {"title": {"display": false}, "legend": {"display": false}, "scales": {"yAxes": [{"ticks": {"beginAtZero": true, "max": 20, "stepSize": 5, "fontColor": "#888888"}, "gridLines": {"color": "rgba(252, 76, 2, 0.2)", "zeroLineColor": "rgba(252, 76, 2, 0.4)"}}], "xAxes": [{"ticks": {"fontColor": "#888888", "fontSize": 11, "fontStyle": "bold"}, "gridLines": {"display": false}}]}, "plugins": {"datalabels": false}}}&format=svg" alt="Weekly Mileage Chart" />
+                    <img src="https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22Mon%22%2C%20%22Tue%22%2C%20%22Wed%22%2C%20%22Thu%22%2C%20%22Fri%22%2C%20%22Sat%22%2C%20%22Sun%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B0.0%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%205%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20true%2C%20%22align%22%3A%20%22end%22%2C%20%22anchor%22%3A%20%22end%22%2C%20%22color%22%3A%20%22%23FC4C02%22%2C%20%22font%22%3A%20%7B%22weight%22%3A%20%22bold%22%2C%20%22size%22%3A%209%7D%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2020%2C%20%22stepSize%22%3A%205%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.2%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.4%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%2011%2C%20%22fontStyle%22%3A%20%22bold%22%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg" alt="Weekly Mileage Chart" />
                 </div>
             </div>
         </section>
 
-        <!-- Week Plan (Dynamic Gemini calculated) -->
+        <!-- Week Plan (Dynamic & Editable) -->
         <section>
             <h2>📅 Week Plan (주간 계획표)</h2>
             <div class="week-plan-card">
-                
-    <table style="width:100%; border-collapse:collapse; text-align:center; font-size:13px; color:#e0e0e0;">
-        <thead>
-            <tr style="border-bottom:1px solid #444; color:#FC4C02;">
-                <th style="padding:8px;">요일</th>
-                <th style="padding:8px;">훈련 타입</th>
-                <th style="padding:8px;">거리</th>
-                <th style="padding:8px;">강도</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">월</td><td>완전 휴식</td><td>-</td><td>💤 OFF</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">화</td><td>이지 조깅</td><td>6.58 km</td><td>🟢 가볍게</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">수</td><td>빌드업 조깅</td><td>8.00 km</td><td>🟡 중간</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">목</td><td>보강 운동</td><td>-</td><td>🟠 코어 집중</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">금</td><td>지속주 런</td><td>10.00 km</td><td>🟡 중간</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">토</td><td>조깅 + 질주</td><td>5.00 km</td><td>🟢 가볍게</td>
-            </tr>
-            <tr style="border-bottom:1px solid #2a2a2a;">
-                <td style="padding:8px; font-weight:bold;">일</td><td>주말 장거리</td><td>15.00 km</td><td>🟠 약간 높음</td>
-            </tr>
-        </tbody>
-    </table>
-    
+                <table class="week-table" id="week-plan-table">
+                    <thead>
+                        <tr style="border-bottom:1px solid #444; color: var(--primary);">
+                            <th style="width: 12%;">요일</th>
+                            <th style="width: 28%;">훈련 타입</th>
+                            <th style="width: 20%;">거리</th>
+                            <th style="width: 25%;">강도</th>
+                        </tr>
+                    </thead>
+                    <tbody id="week-plan-tbody">
+                        <!-- JS로 렌더링 -->
+                    </tbody>
+                </table>
             </div>
         </section>
 
         <!-- Daily Running stats -->
         <section>
-            <h2>🏃‍♂️ Daily Running (2026-05-23)</h2>
-            
-        <div class="rest-card">
-            <span class="rest-icon">💤</span>
-            <div class="rest-title">Today is a Rest Day!</div>
-            <div class="rest-desc">근섬유의 재건과 피로 회복도 훈련의 연장선입니다. 보강운동에 신경 써 주세요.</div>
-        </div>
-        
-            
-            <div class="coach-comment-box">
-                <div class="comment-header">📋 AI COACH'S COMMENT</div>
-                현재 피로도와 컨디션이 매우 양호합니다! 무더운 여름이 다가오기 전에 주 5일 러닝 일정을 잘 소화하시되, 심박수 존 2~3 영역(135-145bpm) 내에서 조깅 마일리지를 차근차근 누적하는 것이 최고의 보약입니다. 러닝 전 웜업 기동성 스트레칭은 부상 방지의 핵심이니 잊지 마세요.
+            <h2>🏃‍♂️ Daily Running (<span id="today-date-header">2026-05-23</span>)</h2>
+            <div id="daily-running-container">
+                <!-- Real Run Stats OR Dynamic Pending Card OR Planned Rest Card rendered via JS -->
             </div>
             
-            <div class="next-recommend-box">
-                🏃‍♂️ Next Target: 6~8km 편안한 존2 조깅 (타겟 심박수 138-144bpm)
+            <!-- AI Coach Box -->
+            <div class="coach-comment-box" style="margin-top: 15px;">
+                <div class="comment-header">📋 AI COACH'S COMMENT</div>
+                <div id="coach-comment-content">
+                    <!-- JS로 바인딩 -->
+                </div>
+            </div>
+            
+            <div class="next-recommend-box" id="next-running-content">
+                <!-- JS로 바인딩 -->
+            </div>
+        </section>
+
+        <!-- Condition Editor Card -->
+        <section>
+            <h2>🧠 Today's Condition & AI Feedback</h2>
+            <div class="condition-editor-card">
+                <div class="input-group">
+                    <div class="input-item">
+                        <label for="cond-fatigue">피로도</label>
+                        <select id="cond-fatigue">
+                            <option value="하">하 (쾌조)</option>
+                            <option value="중">중 (약간 피로)</option>
+                            <option value="상">상 (강한 피로)</option>
+                        </select>
+                    </div>
+                    <div class="input-item">
+                        <label for="cond-pain">통증 부위</label>
+                        <select id="cond-pain">
+                            <option value="없음">없음 (양호)</option>
+                            <option value="발목">발목 통증</option>
+                            <option value="아킬레스건">아킬레스건</option>
+                            <option value="무릎">무릎 (슬개건)</option>
+                            <option value="허리/골반">허리 / 골반</option>
+                            <option value="종아리">종아리/정강이</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="notes-item" style="margin-bottom: 12px;">
+                    <label for="cond-notes">특이사항 및 메모</label>
+                    <input type="text" id="cond-notes" value="" placeholder="예: 어깨가 결림. 오늘은 가볍게 달릴 예정..." />
+                </div>
+                <button class="btn" id="evaluate-btn">
+                    <span>✨ 수정 후 AI 코치 평가받기</span>
+                </button>
+                <div class="spinner-container" id="ai-loading">
+                    <div class="spinner"></div>
+                    <div class="spinner-text">AI 코치가 훈련 세션을 평가하고 있습니다...</div>
+                </div>
             </div>
         </section>
 
         <!-- Today's Routine checklist -->
         <section>
-            <h2>🛠️ Routine For Today</h2>
-            <div class="routine-card" id="routine-section">
-                
-        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 1] 러닝 전 고관절 및 발목 기동성 웜업</p>
-        <ul>
-            <li>90/90 스트레칭 (좌우 5회, 10초 유지)</li>
-            <li>힙 체어 서클 (좌우 15회)</li>
-            <li>토 요가 / 발바닥 내재근 깨우기 (10회, 3세트)</li>
-        </ul>
-        <p style="margin-bottom:5px; font-weight:bold; color:#FC4C02;">🔲 [Step 2] 러닝 후 부상방지 보강 코어</p>
-        <ul>
-            <li>데드버그 (10회 x 3세트)</li>
-            <li>사이드 플랭크 + 클램쉘 중둔근 보강 (좌우 12회, 3세트)</li>
-            <li>싱글 레그 데드리프트 (맨몸 좌우 10회, 3세트)</li>
-        </ul>
-        
+            <h2>🛠️ Routine For Today (보강/스트레칭 블록)</h2>
+            <div id="routine-block-list" class="routine-container-list">
+                <!-- JS로 블록 렌더링 -->
+            </div>
+            
+            <button class="btn btn-secondary" id="open-add-routine-btn" style="margin-top: 10px; border-style: dashed;">
+                <span>➕ 보강운동 라이브러리에서 추가</span>
+            </button>
+
+            <!-- 운동 추가 영역 -->
+            <div class="add-routine-drawer" id="add-routine-drawer">
+                <select id="exercise-library-select">
+                    <option value="">-- 추가할 운동을 골라주세요 --</option>
+                </select>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn" id="add-exercise-confirm" style="margin-top: 0; padding: 8px; font-size: 12px;">추가 완료</button>
+                    <button class="btn btn-secondary" id="add-exercise-cancel" style="margin-top: 0; padding: 8px; font-size: 12px;">취소</button>
+                </div>
             </div>
         </section>
 
         <!-- Footer -->
         <footer>
-            <p>Automated with Strava API & Gemini 1.5 & QuickChart</p>
+            <p>Automated with Strava API & Gemini 2.0 & QuickChart</p>
             <p style="margin-top: 4px;">Designed by Antigravity for <a href="https://github.com/Jay330-KR/Jaewon-s-Running-Coach" target="_blank">Project330</a></p>
         </footer>
     </div>
 
-    <!-- Interactive To-Do list state script -->
+    <!-- API Key Settings Modal -->
+    <div class="overlay" id="settings-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span>🔑 Gemini API Key 설정</span>
+                <button class="modal-close" id="close-settings-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>수정 후 실시간 AI 평가를 받으려면 Gemini API Key가 필요합니다. 입력된 키는 외부 서버로 전송되지 않고 브라우저에 안전하게 저장됩니다.</p>
+                <label style="font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block;">GEMINI API KEY</label>
+                <input type="password" id="api-key-input" placeholder="AIzaSy..." />
+                <button class="btn" id="save-settings-btn">설정 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- State & Core Dynamic Script -->
     <script>
+        // 1. Python에서 전달된 초기 전역 데이터 바인딩
+        const INITIAL_WEEK_PLAN = [{"day": "월", "type": "완전 휴식", "distance": "-", "intensity": "💤 OFF", "detail": "완전 휴식 및 가벼운 마사지"}, {"day": "화", "type": "이지 조깅", "distance": "6.58 km", "intensity": "🟢 가볍게", "detail": "심박수 135-140 이지 조깅"}, {"day": "수", "type": "빌드업 조깅", "distance": "8.00 km", "intensity": "🟡 중간", "detail": "후반 가속 훈련"}, {"day": "목", "type": "보강 운동", "distance": "-", "intensity": "🟠 코어 집중", "detail": "고관절 기동성 및 코어 보강"}, {"day": "금", "type": "지속주 런", "distance": "10.00 km", "intensity": "🟡 중간", "detail": "일정한 페이스 유지 지속주"}, {"day": "토", "type": "조깅 + 질주", "distance": "5.00 km", "intensity": "🟢 가볍게", "detail": "가벼운 5km 조깅 및 100m 질주 3회"}, {"day": "일", "type": "주말 장거리", "distance": "15.00 km", "intensity": "🟠 약간 높음", "detail": "LSD 마일리지 누적"}];
+        const INITIAL_ROUTINES = [{"name": "90/90 Stretch", "target": "고관절", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬"}, {"name": "Hip Chair Circle", "target": "고관절", "reps": "좌우 각 15회", "sets": "1세트", "tips": "의자 활용 / 고관절 소켓을 부드럽게 열어주기"}, {"name": "Toe Yoga", "target": "발바닥 / 아치", "reps": "좌우 각 10회", "sets": "3세트", "tips": "발바닥 고유수용감각 촉진 및 아치 활성화"}, {"name": "Deadbug", "target": "코어", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건"}, {"name": "Side Plank + Clamshell", "target": "둔근 (중둔근)", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인"}];
+        const STATS_DATA = {"total_may_mileage": 121.5, "total_weekly_mileage": 6.6, "today_run": null, "today_date": "2026-05-23", "today_weekday_idx": 5, "may_chart_url": "https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%221%22%2C%20%222%22%2C%20%223%22%2C%20%224%22%2C%20%225%22%2C%20%226%22%2C%20%227%22%2C%20%228%22%2C%20%229%22%2C%20%2210%22%2C%20%2211%22%2C%20%2212%22%2C%20%2213%22%2C%20%2214%22%2C%20%2215%22%2C%20%2216%22%2C%20%2217%22%2C%20%2218%22%2C%20%2219%22%2C%20%2220%22%2C%20%2221%22%2C%20%2222%22%2C%20%2223%22%2C%20%2224%22%2C%20%2225%22%2C%20%2226%22%2C%20%2227%22%2C%20%2228%22%2C%20%2229%22%2C%20%2230%22%2C%20%2231%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B8.31%2C%207.0%2C%209.0%2C%205.0%2C%2011.42%2C%205.08%2C%200.0%2C%208.74%2C%200.0%2C%2012.82%2C%2010.63%2C%205.39%2C%200.0%2C%208.82%2C%2010.03%2C%200.0%2C%2012.67%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%204%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2018%2C%20%22stepSize%22%3A%206%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.15%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.3%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%209%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg", "week_chart_url": "https://quickchart.io/chart?c=%7B%22type%22%3A%20%22bar%22%2C%20%22data%22%3A%20%7B%22labels%22%3A%20%5B%22Mon%22%2C%20%22Tue%22%2C%20%22Wed%22%2C%20%22Thu%22%2C%20%22Fri%22%2C%20%22Sat%22%2C%20%22Sun%22%5D%2C%20%22datasets%22%3A%20%5B%7B%22data%22%3A%20%5B0.0%2C%200.0%2C%206.58%2C%200.0%2C%200.0%2C%200.0%2C%200.0%5D%2C%20%22backgroundColor%22%3A%20%22%23FC4C02%22%2C%20%22borderRadius%22%3A%205%2C%20%22datalabels%22%3A%20%7B%22display%22%3A%20true%2C%20%22align%22%3A%20%22end%22%2C%20%22anchor%22%3A%20%22end%22%2C%20%22color%22%3A%20%22%23FC4C02%22%2C%20%22font%22%3A%20%7B%22weight%22%3A%20%22bold%22%2C%20%22size%22%3A%209%7D%7D%7D%5D%7D%2C%20%22options%22%3A%20%7B%22title%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22legend%22%3A%20%7B%22display%22%3A%20false%7D%2C%20%22scales%22%3A%20%7B%22yAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22beginAtZero%22%3A%20true%2C%20%22max%22%3A%2020%2C%20%22stepSize%22%3A%205%2C%20%22fontColor%22%3A%20%22%23888888%22%7D%2C%20%22gridLines%22%3A%20%7B%22color%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.2%29%22%2C%20%22zeroLineColor%22%3A%20%22rgba%28252%2C%2076%2C%202%2C%200.4%29%22%7D%7D%5D%2C%20%22xAxes%22%3A%20%5B%7B%22ticks%22%3A%20%7B%22fontColor%22%3A%20%22%23888888%22%2C%20%22fontSize%22%3A%2011%2C%20%22fontStyle%22%3A%20%22bold%22%7D%2C%20%22gridLines%22%3A%20%7B%22display%22%3A%20false%7D%7D%5D%7D%2C%20%22plugins%22%3A%20%7B%22datalabels%22%3A%20false%7D%7D%7D&format=svg"};
+        const INITIAL_COACH_COMMENT = "현재 피로도와 컨디션이 매우 양호합니다! 무더운 여름이 다가오기 전에 주 5일 러닝 일정을 잘 소화하시되, 심박수 존 2~3 영역(135-145bpm) 내에서 조깅 마일리지를 차근차근 누적하는 것이 최고의 보약입니다. 러닝 전 웜업 기동성 스트레칭은 부상 방지의 핵심이니 잊지 마세요.";
+        const INITIAL_NEXT_RUNNING = "🏃‍♂️ Next Target: 6~8km 편안한 존2 조깅 (타겟 심박수 138-144bpm)";
+        const CONDITION_DATA = {"피로도": "하", "통증": "없음", "기타": "오늘 퇴근 후 5km 가볍게 조깅 예정. 날씨가 더우니 저녁 7시 이후에 뛸 예정."};
+
+        // 32종의 노션 보강운동 라이브러리 전체 데이터
+        const EXERCISE_LIBRARY = [
+            { "target": "하체 전반", "name": "Foam Roller Set & Stretching", "reps": "1~2분 (부위별)", "sets": "1세트", "tips": "폼롤러 / 종아리, 중둔근, 대퇴사두 등 이완 중심" },
+            { "target": "코어", "name": "Deadbug", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건 / 어깨 석회 통증 주의" },
+            { "target": "둔근 (중둔근)", "name": "Side Plank + Clamshell", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인" },
+            { "target": "둔근", "name": "Single Leg Hip Bridge", "reps": "각 10회", "sets": "3세트", "tips": "든 다리 골반이 처지지 않게 수평 유지" },
+            { "target": "종아리 / 발목", "name": "Eccentric Calf Raise", "reps": "15회", "sets": "3세트", "tips": "5초 동안 소리 없이 천천히 뒤꿈치 내리기" },
+            { "target": "고관절", "name": "90/90 Stretch", "reps": "좌우 각 5회", "sets": "1세트", "tips": "10초 유지 / 고관절 가동성 확보 및 골반 정렬" },
+            { "target": "발목", "name": "Ankle Mobility Exercise", "reps": "12회", "sets": "3세트", "tips": "발목의 전반적인 가동성 확보" },
+            { "target": "햄스트링", "name": "Hamstring Stretch", "reps": "각 1분", "sets": "2세트", "tips": "반동 없이 길게 늘려 후방 사슬 이완" },
+            { "target": "둔근", "name": "Hip Bridge", "reps": "12회", "sets": "3세트", "tips": "골반 수평 유지 및 둔근 시동 (신경계 활성화)" },
+            { "target": "후방 사슬", "name": "Romanian Deadlift", "reps": "10~15회", "sets": "3세트", "tips": "저중량으로 힙힌지 감각 각인 (무릎 고정, 엉덩이 멀리)" },
+            { "target": "하체 / 편측성", "name": "Split Squat", "reps": "각 8회", "sets": "3세트", "tips": "무릎이 안으로 굽지 않게 외회전 토크 유지" },
+            { "target": "하체 / 둔근", "name": "Backward Lunge", "reps": "각 8회", "sets": "3세트", "tips": "덤벨 활용 편측성 훈련" },
+            { "target": "하체 전반", "name": "Goblet Squat", "reps": "12회", "sets": "3세트", "tips": "무릎을 바깥으로 밀어내며 엉덩이 강한 자극" },
+            { "target": "하체 전반", "name": "Weighted Squat", "reps": "12회", "sets": "5세트", "tips": "점진적 과부하 트레이닝" },
+            { "target": "발바닥 / 아치", "name": "Toe Yoga", "reps": "좌우 각 10회", "sets": "3세트", "tips": "발바닥 고유수용감각 촉진 및 아치 활성화" },
+            { "target": "둔근 / 하체", "name": "Pigeon Lift (S-Lunge)", "reps": "좌우 각 10회", "sets": "3세트", "tips": "힌지 포지션 잡고 엉덩이 힘으로 상체 리프트" },
+            { "target": "햄스트링", "name": "Elephant Walk", "reps": "10~20회", "sets": "2세트", "tips": "햄스트링 가벼운 동적 가동성 확보" },
+            { "target": "고관절", "name": "Hip Chair Circle", "reps": "좌우 각 15회", "sets": "1세트", "tips": "의자 활용 / 고관절 소켓을 부드럽게 열어주기" },
+            { "target": "후방 사슬", "name": "Standing Hamstring Sweep", "reps": "좌우 각 15회", "sets": "1세트", "tips": "메인 운동 전 후방 사슬 예열" },
+            { "target": "하체 / 내전근", "name": "Cossack Squat Hold", "reps": "좌우 각 3회", "sets": "1세트", "tips": "10초 정지 / 내전근 능동 활성화" },
+            { "target": "둔근", "name": "Kickback", "reps": "좌우 각 10회", "sets": "3세트", "tips": "둔근 활성 및 러닝 보행 동작 연동" },
+            { "target": "무릎 / 발목", "name": "Tibial Rotation Drill", "reps": "15회", "sets": "3세트", "tips": "무릎 고정하고 정강이뼈만 회전 훈련" },
+            { "target": "대퇴사두", "name": "Foam Roller Quad Setting", "reps": "12회", "sets": "3세트", "tips": "오금으로 짓누르며 허벅지 내측광근 수축" },
+            { "target": "대퇴사두", "name": "Internal Rotation Extension", "reps": "12회", "sets": "3세트", "tips": "내회전 상태로 편측 저항 버티며 내리기" },
+            { "target": "무릎 결합조직", "name": "Lean Forward Isometric Hold", "reps": "20초", "sets": "3세트", "tips": "뒤꿈치 든 채 정적 버티기" },
+            { "target": "하체 협응력", "name": "Bosu Ball Tap & Hold", "reps": "10회", "sets": "3세트", "tips": "불안정한 지면 딛고 발바닥 미세 제어" },
+            { "target": "둔근 / 하체", "name": "Band Diagonal Kickback", "reps": "좌우 각 12회", "sets": "3세트", "tips": "루프 밴드로 엉덩이 측면 및 뒤 활성" },
+            { "target": "하체 / 고관절", "name": "Band Monster Walk", "reps": "사방 10걸음", "sets": "3세트", "tips": "밴드 착용 상태로 사방 걷기" },
+            { "target": "장요근 / 고관절", "name": "Band Hip Flexor Lift", "reps": "좌우 각 12회", "sets": "3세트", "tips": "고관절 및 장요근 굴곡력 강화" },
+            { "target": "플라이오메트릭", "name": "Skate Drill & Landing", "reps": "좌우 각 8회", "sets": "3세트", "tips": "양발 랜딩 후 한발 도약 측면 점프" },
+            { "target": "전신 / 코어", "name": "Forward Lean Walk with Waterbag", "reps": "15걸음", "sets": "3세트", "tips": "워터백 부하 저항 극복 전진" },
+            { "target": "발목 / 민첩성", "name": "Plate Quick Tap", "reps": "좌우 각 15회", "sets": "3세트", "tips": "원판 빠르게 찍고 복귀 발목 탄성 제어" }
+        ];
+
+        // 2. 어플리케이션 상태(State) 관리 객체
+        let appState = {
+            weekPlan: [],
+            routines: [],
+            apiKey: ""
+        };
+
+        // 3. 요일 헬퍼
+        const WEEKDAYS_KO = ["월", "화", "수", "목", "금", "토", "일"];
+
+        // 4. 초기화 실행
         document.addEventListener('DOMContentLoaded', () => {
-            const routineContainer = document.getElementById('routine-section');
-            if (!routineContainer) return;
+            initAppState();
+            renderSettingsModal();
+            renderWeekPlanTable();
+            renderDailyRunning();
+            renderRoutines();
+            setupAddExerciseLibrary();
+            bindEvents();
+        });
 
-            // 1. 모든 li 요소를 체크리스트 형태로 바인딩
-            const items = routineContainer.querySelectorAll('ul li');
-            
-            items.forEach((item, index) => {
-                // 내부 텍스트 확보
-                const text = item.innerHTML;
-                const storageKey = `project330_todo_${index}_${today_date}`;
-                const isChecked = localStorage.getItem(storageKey) === 'true';
+        // 상태 초기화 (localStorage 우선 로드)
+        function initAppState() {
+            // API 키
+            appState.apiKey = localStorage.getItem('gemini_api_key') || "";
+            if (!appState.apiKey && window.LOCAL_GEMINI_API_KEY) {
+                appState.apiKey = window.LOCAL_GEMINI_API_KEY;
+                localStorage.setItem('gemini_api_key', appState.apiKey);
+            }
 
-                // HTML 구조 변경: 체크박스 강제 주입
-                item.innerHTML = `<input type="checkbox" id="check_${index}" ${isChecked ? 'checked' : ''}> <span>${text}</span>`;
-                
-                if (isChecked) {
-                    item.classList.add('completed');
+            // 주간 계획
+            const cachedWeekPlan = localStorage.getItem('project330_week_plan');
+            if (cachedWeekPlan) {
+                appState.weekPlan = JSON.parse(cachedWeekPlan);
+            } else {
+                appState.weekPlan = INITIAL_WEEK_PLAN;
+                localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
+            }
+
+            // 보강운동 루틴
+            const cachedRoutines = localStorage.getItem('project330_routines_today');
+            if (cachedRoutines) {
+                appState.routines = JSON.parse(cachedRoutines);
+            } else {
+                appState.routines = INITIAL_ROUTINES.map((item, idx) => ({ ...item, id: idx, checked: false }));
+                localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+            }
+
+            // 몸 상태 UI 세팅
+            document.getElementById('cond-fatigue').value = CONDITION_DATA.피로도 || "하";
+            document.getElementById('cond-pain').value = CONDITION_DATA.통증 || "없음";
+            document.getElementById('cond-notes').value = CONDITION_DATA.기타 || "";
+        }
+
+        // 5. Weekly Plan 테이블 렌더러
+        function renderWeekPlanTable() {
+            const tbody = document.getElementById('week-plan-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = "";
+            const todayIdx = STATS_DATA.today_weekday_idx;
+
+            appState.weekPlan.forEach((plan, index) => {
+                const tr = document.createElement('tr');
+                if (index === todayIdx) {
+                    tr.classList.add('active-today');
                 }
 
-                // 클릭 이벤트 바인딩
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                
-                const toggleCheck = (e) => {
-                    // 만약 체크박스 자체를 누른 게 아니라면 토글 처리
-                    if (e.target !== checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                    }
-                    
-                    if (checkbox.checked) {
-                        item.classList.add('completed');
-                        localStorage.setItem(storageKey, 'true');
-                    } else {
-                        item.classList.remove('completed');
-                        localStorage.setItem(storageKey, 'false');
-                    }
-                };
+                const isTodayLabel = index === todayIdx ? `${plan.day} (오늘)` : plan.day;
+                const fontStyle = index === todayIdx ? 'font-weight: bold; color: var(--primary);' : 'font-weight: bold;';
 
-                item.addEventListener('click', toggleCheck);
+                tr.innerHTML = `
+                    <td style="padding: 8px 4px; ${fontStyle}">${isTodayLabel}</td>
+                    <td>
+                        <input type="text" value="${plan.type}" class="week-edit-input" data-idx="${index}" data-field="type" />
+                    </td>
+                    <td>
+                        <input type="text" value="${plan.distance}" class="week-edit-input" data-idx="${index}" data-field="distance" style="width: 80%;" />
+                    </td>
+                    <td>
+                        <select class="week-edit-select" data-idx="${index}" data-field="intensity">
+                            <option value="🟢 가볍게" ${plan.intensity === '🟢 가볍게' ? 'selected' : ''}>🟢 가볍게</option>
+                            <option value="🟡 중간" ${plan.intensity === '🟡 중간' ? 'selected' : ''}>🟡 중간</option>
+                            <option value="🟠 높음" ${plan.intensity === '🟠 높음' ? 'selected' : ''}>🟠 높음</option>
+                            <option value="💤 OFF" ${plan.intensity === '💤 OFF' ? 'selected' : ''}>💤 OFF</option>
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-        });
+
+            // 입력 이벤트 바인딩
+            tbody.querySelectorAll('.week-edit-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const idx = e.target.dataset.idx;
+                    const field = e.target.dataset.field;
+                    appState.weekPlan[idx][field] = e.target.value;
+                    localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
+                    
+                    if (parseInt(idx) === todayIdx) {
+                        renderDailyRunning();
+                    }
+                });
+            });
+
+            tbody.querySelectorAll('.week-edit-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const idx = e.target.dataset.idx;
+                    const field = e.target.dataset.field;
+                    appState.weekPlan[idx][field] = e.target.value;
+                    localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
+                    
+                    if (parseInt(idx) === todayIdx) {
+                        renderDailyRunning();
+                    }
+                });
+            });
+        }
+
+        // 6. Daily Running 동적 렌더러
+        function renderDailyRunning() {
+            const container = document.getElementById('daily-running-container');
+            const commentBox = document.getElementById('coach-comment-content');
+            const nextRecommendBox = document.getElementById('next-running-content');
+            if (!container) return;
+
+            commentBox.innerHTML = localStorage.getItem('project330_coach_comment') || INITIAL_COACH_COMMENT;
+            nextRecommendBox.innerHTML = localStorage.getItem('project330_next_running') || INITIAL_NEXT_RUNNING;
+
+            const todayRun = STATS_DATA.today_run;
+            if (todayRun) {
+                const distKm = (todayRun.distance / 1000.0).toFixed(2);
+                const movingMin = Math.floor(todayRun.moving_time / 60);
+                
+                let paceMin = 0;
+                let paceSec = 0;
+                if (parseFloat(distKm) > 0) {
+                    const totalSec = todayRun.moving_time;
+                    const secPerKm = totalSec / parseFloat(distKm);
+                    paceMin = Math.floor(secPerKm / 60);
+                    paceSec = Math.round(secPerKm % 60);
+                }
+                
+                const avgHr = todayRun.average_heartrate || "-";
+
+                container.innerHTML = `
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-title">실제 거리</div>
+                            <div class="stat-value">${distKm} <span class="stat-unit">km</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">실제 페이스</div>
+                            <div class="stat-value">${paceMin}'${paceSec.toString().padStart(2, '0')}" <span class="stat-unit">/km</span></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-title">평균 심박수</div>
+                            <div class="stat-value">${avgHr} <span class="stat-unit">bpm</span></div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const todayIdx = STATS_DATA.today_weekday_idx;
+            const todayPlan = appState.weekPlan[todayIdx] || { type: "완전 휴식", distance: "-", intensity: "💤 OFF", detail: "휴식" };
+
+            if (todayPlan.intensity.includes("OFF") || todayPlan.type.includes("휴식")) {
+                container.innerHTML = `
+                    <div class="rest-card">
+                        <span class="rest-icon">💤</span>
+                        <div class="rest-title">Today is a Rest Day! (계획된 휴식)</div>
+                        <div class="rest-desc">근섬유의 재건과 피로 회복도 훈련의 연장선입니다. 폼롤러나 코어 보강운동에 집중해 주세요.</div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="rest-card" style="background: rgba(252,76,2,0.03); border: 1px dashed rgba(252,76,2,0.4);">
+                        <span class="rest-icon">🏃‍♂️</span>
+                        <div class="rest-title" style="color: var(--primary);">오늘 예정된 본운동: ${todayPlan.type} (${todayPlan.distance})</div>
+                        <div class="rest-desc" style="color: #fff; font-weight:500; margin-top: 6px;">아직 오늘 달린 러닝 기록이 스트라바에 연동되지 않았습니다.</div>
+                        <div class="rest-desc" style="font-size: 11px; margin-top: 2px;">운동을 마친 후 자동으로 동기화되거나, 아래 보강 루틴을 먼저 실천해 보세요!</div>
+                    </div>
+                `;
+            }
+        }
+
+        // 7. Routine 블록형 렌더러
+        function renderRoutines() {
+            const list = document.getElementById('routine-block-list');
+            if (!list) return;
+
+            list.innerHTML = "";
+
+            if (appState.routines.length === 0) {
+                list.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size:12px; padding: 20px;">오늘 예정된 보강 운동이 비어있습니다. 라이브러리에서 자유롭게 추가해 보세요!</p>`;
+                return;
+            }
+
+            appState.routines.forEach((item, index) => {
+                let badgeClass = "badge-general";
+                if (item.target.includes("코어")) badgeClass = "badge-core";
+                else if (item.target.includes("하체") || item.target.includes("둔근") || item.target.includes("햄스트링")) badgeClass = "badge-lower";
+                else if (item.target.includes("발목") || item.target.includes("종아리")) badgeClass = "badge-ankle";
+
+                const block = document.createElement('div');
+                block.className = `routine-block ${item.checked ? 'completed' : ''}`;
+                block.dataset.id = item.id;
+
+                block.innerHTML = `
+                    <div class="routine-check">
+                        <input type="checkbox" id="check_${item.id}" ${item.checked ? 'checked' : ''}>
+                    </div>
+                    <div class="routine-details-box">
+                        <div class="routine-meta-row">
+                            <span class="routine-badge ${badgeClass}">${item.target}</span>
+                            <span class="routine-sets-reps">${item.sets} x ${item.reps}</span>
+                        </div>
+                        <span class="routine-name" id="name_text_${item.id}">${item.name}</span>
+                        <span class="routine-tips" id="tips_text_${item.id}">${item.tips}</span>
+                    </div>
+                    
+                    <div class="routine-controls">
+                        <button class="ctrl-btn" onclick="moveRoutine(${index}, -1)" title="위로 이동">▲</button>
+                        <button class="ctrl-btn" onclick="moveRoutine(${index}, 1)" title="아래로 이동">▼</button>
+                        <button class="ctrl-btn" onclick="editRoutineInline(${item.id})" title="상세 편집">✏️</button>
+                        <button class="ctrl-btn btn-delete" onclick="deleteRoutine(${item.id})" title="삭제">🗑️</button>
+                    </div>
+                `;
+
+                const checkbox = block.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', (e) => {
+                    item.checked = e.target.checked;
+                    if (item.checked) {
+                        block.classList.add('completed');
+                    } else {
+                        block.classList.remove('completed');
+                    }
+                    localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+                });
+
+                list.appendChild(block);
+            });
+        }
+
+        window.moveRoutine = function(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= appState.routines.length) return;
+
+            const temp = appState.routines[index];
+            appState.routines[index] = appState.routines[targetIndex];
+            appState.routines[targetIndex] = temp;
+
+            localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+            renderRoutines();
+        };
+
+        window.deleteRoutine = function(id) {
+            appState.routines = appState.routines.filter(item => item.id !== id);
+            localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+            renderRoutines();
+        };
+
+        window.editRoutineInline = function(id) {
+            const item = appState.routines.find(x => x.id === id);
+            if (!item) return;
+
+            const newSets = prompt("세트수를 입력하세요 (예: 3세트):", item.sets);
+            if (newSets === null) return;
+            const newReps = prompt("반복 횟수 또는 시간을 입력하세요 (예: 15회):", item.reps);
+            if (newReps === null) return;
+            const newTips = prompt("수행 팁 또는 설명 정보:", item.tips);
+            if (newTips === null) return;
+
+            item.sets = newSets || item.sets;
+            item.reps = newReps || item.reps;
+            item.tips = newTips || item.tips;
+
+            localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+            renderRoutines();
+        };
+
+        // 8. 노션 보강운동 32종 라이브러리 드롭다운 세팅
+        function setupAddExerciseLibrary() {
+            const select = document.getElementById('exercise-library-select');
+            if (!select) return;
+
+            EXERCISE_LIBRARY.forEach((ex, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `[${ex.target}] ${ex.name} (${ex.sets} x ${ex.reps})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // 9. 라이브러리 운동 신규 추가 처리
+        function confirmAddExercise() {
+            const select = document.getElementById('exercise-library-select');
+            const val = select.value;
+            if (val === "") return;
+
+            const selectedEx = EXERCISE_LIBRARY[parseInt(val)];
+            const maxId = appState.routines.reduce((max, item) => item.id > max ? item.id : max, -1);
+            
+            const newBlock = {
+                id: maxId + 1,
+                target: selectedEx.target,
+                name: selectedEx.name,
+                sets: selectedEx.sets,
+                reps: selectedEx.reps,
+                tips: selectedEx.tips,
+                checked: false
+            };
+
+            appState.routines.push(newBlock);
+            localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+            renderRoutines();
+
+            select.value = "";
+            document.getElementById('add-routine-drawer').style.display = 'none';
+        }
+
+        // 10. API Key 설정 및 모달 관리
+        function renderSettingsModal() {
+            const input = document.getElementById('api-key-input');
+            if (input) {
+                input.value = appState.apiKey;
+            }
+        }
+
+        function toggleSettingsModal(active) {
+            const overlay = document.getElementById('settings-overlay');
+            if (active) {
+                overlay.classList.add('active');
+            } else {
+                overlay.classList.remove('active');
+            }
+        }
+
+        // 11. 수정 후 AI 코치 평가받기 (Gemini API 실시간 AJAX 클라이언트 추론)
+        async function runAIEvaluation() {
+            if (!appState.apiKey) {
+                alert("Gemini API Key를 먼저 설정해 주세요! 우측 상단의 ⚙️ 아이콘을 누르면 쉽게 등록할 수 있습니다.");
+                toggleSettingsModal(true);
+                return;
+            }
+
+            const evaluateBtn = document.getElementById('evaluate-btn');
+            const loading = document.getElementById('ai-loading');
+            
+            evaluateBtn.style.display = 'none';
+            loading.style.display = 'flex';
+
+            const fatigue = document.getElementById('cond-fatigue').value;
+            const pain = document.getElementById('cond-pain').value;
+            const notes = document.getElementById('cond-notes').value;
+
+            // 로컬 condition 파일도 시뮬레이션용으로 즉시 UI 동기화
+            const formattedPlan = appState.weekPlan.map(p => `요일: ${p.day}요일, 종류: ${p.type}, 목표 거리: ${p.distance}, 강도: ${p.intensity}`).join("
+");
+            
+            const prompt = `
+역할: 전문 마라톤 코치이자 부상 방지 재활 및 임산부/육아 러닝 전문가.
+사용자의 배경 정보:
+- 러닝 숙련도: 2022년부터 마라톤 풀코스 PR 3시간 46분 24초 보유자. (숙련된 서브 4 러너)
+- 미래 목표: 2027년 3월 서울마라톤 풀코스 3시간 30분(Project330) 목표.
+- 현실적 제약 및 특별 상황: 2026년 9월 출산 예정. 이후 육아 동반 예정으로, 강도 높은 하드 트레이닝보다는 "부상 없이 여름철을 나며 보강운동을 병행하고 장거리를 소화할 수 있는 튼튼한 하체와 코어 몸 만들기"가 핵심 목표.
+- 현재 날짜: ${STATS_DATA.today_date}
+
+사용자가 주간 훈련 계획을 다음과 같이 새롭게 수립/수정하였습니다:
+${formattedPlan}
+
+사용자의 현재 건강 컨디션:
+- 피로도: ${fatigue}
+- 통증 여부: ${pain}
+- 메모 및 특이사항: ${notes}
+
+위 상황을 고도로 분석하여 전문 코치로서 수정된 계획이 안전한지, 목표에 부합하는지 꼼꼼하게 평가해 주세요.
+반드시 아래 JSON 형식 명칭을 지켜 오직 **순수 JSON**으로만 응답해 주세요. 백틱(markdown block)을 절대로 붙이지 마세요.
+
+출력 JSON 형식:
+{
+  "coach_comment": "사용자의 피로도, 통증, 오늘 달리기 결과, 그리고 임신/출산 상황을 다정하고 따뜻하게 격려하면서도 수정된 훈련계획의 타당성을 러닝 생리학적으로 분석해주는 3~4줄의 조언",
+  "next_running": "수정된 계획과 오늘의 몸 상태에 기초한 다음 목표 훈련 가이드 한 줄 요약 (예: '🏃‍♂️ Next Target: 5km 가벼운 리커버리 조깅 (평균 심박수 135-140 유지)')"
+}
+`;
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${appState.apiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }],
+                        generationConfig: {
+                            responseMimeType: "application/json"
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Gemini HTTP Error (Status ${response.status})`);
+                }
+
+                const result = await response.json();
+                let text = result.candidates[0].content.parts[0].text.trim();
+                
+                if (text.startsWith("```")) {
+                    text = text.split("```")[1];
+                    if (text.startsWith("json")) {
+                        text = text.substring(4);
+                    }
+                }
+                text = text.trim();
+
+                const parsedAI = JSON.parse(text);
+
+                localStorage.setItem('project330_coach_comment', parsedAI.coach_comment);
+                localStorage.setItem('project330_next_running', parsedAI.next_running);
+
+                renderDailyRunning();
+                alert("🎉 AI 코치님의 주간 계획표 및 당일 컨디션 평가가 성공적으로 업데이트되었습니다!");
+
+            } catch (error) {
+                console.error("Gemini AI API Call Failure:", error);
+                alert(`⚠️ AI 코치 호출 중 문제가 발생했습니다: ${error.message}
+(API 키를 다시 확인해 보시거나 잠시 후 다시 시도해 주세요)`);
+            } finally {
+                loading.style.display = 'none';
+                evaluateBtn.style.display = 'inline-flex';
+            }
+        }
+
+        // 12. 전체 클릭 이벤트 처리 바인딩
+        function bindEvents() {
+            document.getElementById('open-settings-btn').addEventListener('click', () => toggleSettingsModal(true));
+            document.getElementById('close-settings-btn').addEventListener('click', () => toggleSettingsModal(false));
+            
+            document.getElementById('save-settings-btn').addEventListener('click', () => {
+                const input = document.getElementById('api-key-input').value.trim();
+                appState.apiKey = input;
+                localStorage.setItem('gemini_api_key', input);
+                alert("Gemini API Key 설정이 저장되었습니다!");
+                toggleSettingsModal(false);
+            });
+
+            document.getElementById('open-add-routine-btn').addEventListener('click', () => {
+                const drawer = document.getElementById('add-routine-drawer');
+                drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+            });
+
+            document.getElementById('add-exercise-cancel').addEventListener('click', () => {
+                document.getElementById('add-routine-drawer').style.display = 'none';
+            });
+            document.getElementById('add-exercise-confirm').addEventListener('click', confirmAddExercise);
+
+            document.getElementById('evaluate-btn').addEventListener('click', runAIEvaluation);
+        }
     </script>
 </body>
 </html>
