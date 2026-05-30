@@ -2080,10 +2080,8 @@ def build_html_dashboard(stats, ai):
         };
 
         const getBackendUrl = (path) => {
-            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
-                return `http://localhost:8000${path}`;
-            }
-            return path;
+            // 깃허브 원격 호스팅 페이지에서도 로컬에서 돌아가는 8000 포트 서버와 통신하도록 주소 고정
+            return `http://localhost:8000${path}`;
         };
 
         async function saveStateToBackend() {
