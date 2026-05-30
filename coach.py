@@ -53,8 +53,11 @@ def load_condition():
         return default_condition
 
 def load_notion_routines():
-    """notion_routines.md 파일의 내용을 텍스트로 그대로 읽어옵니다."""
-    routines_path = "notion_routines.md"
+    """antigravity_master_workout_list_v2.md 또는 notion_routines.md 파일의 내용을 텍스트로 그대로 읽어옵니다."""
+    routines_path = "antigravity_master_workout_list_v2.md"
+    if not os.path.exists(routines_path):
+        routines_path = "notion_routines.md"
+        
     if not os.path.exists(routines_path):
         return "사용 가능한 노션 보강운동 루틴 데이터가 없습니다."
     try:
@@ -63,6 +66,146 @@ def load_notion_routines():
     except Exception as e:
         print(f"⚠️ [Notion Routines] 로드 중 오류 발생: {e}")
         return "노션 운동 루틴 라이브러리를 불러올 수 없습니다."
+
+def parse_notion_routines_markdown():
+    """antigravity_master_workout_list_v2.md 또는 notion_routines.md 파일의 마크다운 표를 파싱하여 JavaScript EXERCISE_LIBRARY 형식의 리스트를 생성합니다."""
+    path = "antigravity_master_workout_list_v2.md"
+    if not os.path.exists(path):
+        path = "notion_routines.md"
+        
+    if not os.path.exists(path):
+        return []
+    
+    exercises = []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        table_started = False
+        for line in lines:
+            line_str = line.strip()
+            if not line_str.startswith("|"):
+                continue
+            
+            parts = [p.strip() for p in line_str.split("|")]
+            if len(parts) >= 3 and ("타겟" in parts[1] and "이름" in parts[2]):
+                table_started = True
+                continue
+            if "---" in line_str:
+                table_started = True
+                continue
+                
+            if table_started:
+                if len(parts) >= 6:
+                    target = parts[1]
+                    name = parts[2]
+                    reps = parts[3]
+                    sets = parts[4]
+                    tips = parts[5]
+                    
+                    if not target or not name:
+                        continue
+                        
+                    # Category heuristics mapping:
+                    # Base: Stretching, Foam rolling, mobility etc.
+                    # Pre-Run: Dynamic warm-ups (Bridges, Sweep, Elephant walk, pigeons etc.)
+                    # Workout: Strength-based routines (Plank, Deadbug, Squats, Lunges, Deadlifts etc.)
+                    category = "Workout"
+                    
+                    lower_name = name.lower()
+                    lower_tips = tips.lower()
+                    lower_target = target.lower()
+                    
+                    if "stretch" in lower_name or "roller" in lower_name or "mobility" in lower_name or "yoga" in lower_name or "circle" in lower_name or "drill" in lower_name or "setting" in lower_name:
+                        if "sweep" in lower_name or "lift" in lower_name or "walk" in lower_name or "kickback" in lower_name or "tap" in lower_name:
+                            category = "Pre-Run"
+                        else:
+                            category = "Base"
+                    elif "bridge" in lower_name or "sweep" in lower_name or "walk" in lower_name or "lift" in lower_name or "tap" in lower_name or "kickback" in lower_name:
+                        category = "Pre-Run"
+                        if "single" in lower_name or "clamshell" in lower_name or "deadbug" in lower_name:
+                            category = "Workout"
+                    else:
+                        category = "Workout"
+                        
+                    # Hardcoded override patch for original mapping accuracy:
+                    if "Landing" in name or "Bounce" in name or "Hopping" in name:
+                        if "Double Leg" in name:
+                            category = "Pre-Run"
+                        else:
+                            category = "Workout"
+                    elif "Foam Roller" in name or "90/90" in name or "Ankle" in name or "Hamstring Stretch" in name or "Yoga" in name or "Chair" in name or "Drill" in name or "Quad Setting" in name:
+                        category = "Base"
+                    elif "Bridge" in name or "Sweep" in name or "Elephant Walk" in name or "Pigeon" in name or "Kickback" in name or "Quick Tap" in name or "Dynamic Tap" in name or "Double Leg" in name or "Double Tap" in name:
+                        if "Single" in name:
+                            category = "Workout"
+                        else:
+                            category = "Pre-Run"
+                            
+                    exercises.append({
+                        "category": category,
+                        "target": target,
+                        "name": name,
+                        "reps": reps,
+                        "sets": sets,
+                        "tips": tips
+                    })
+    except Exception as e:
+        print(f"⚠️ [MD Parse] {path} 파싱 실패: {e}")
+        
+    return exercises
+
+def load_saved_week_plan():
+    path = "data/week_plan.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) == 7:
+                    print("💾 [DB Load] data/week_plan.json 로드 성공")
+                    return data
+        except Exception as e:
+            print(f"⚠️ [DB Load] data/week_plan.json 로드 중 예외: {e}")
+    return None
+
+def load_saved_routines():
+    path = "data/routines_today.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    print("💾 [DB Load] data/routines_today.json 로드 성공")
+                    return data
+        except Exception as e:
+            print(f"⚠️ [DB Load] data/routines_today.json 로드 중 예외: {e}")
+    return None
+
+def load_saved_coach_comment():
+    path = "data/coach_comment.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, str):
+                    print("💾 [DB Load] data/coach_comment.json 로드 성공")
+                    return data
+        except Exception as e:
+            print(f"⚠️ [DB Load] data/coach_comment.json 로드 중 예외: {e}")
+    return None
+
+def load_saved_next_running():
+    path = "data/next_running.json"
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, str):
+                    print("💾 [DB Load] data/next_running.json 로드 성공")
+                    return data
+        except Exception as e:
+            print(f"⚠️ [DB Load] data/next_running.json 로드 중 예외: {e}")
+    return None
 
 # 3. Strava API 통신 & 데이터 수집 (Fallback 포함)
 def get_strava_activities():
@@ -195,10 +338,14 @@ def calculate_mileage_and_build_charts(activities):
     total_weekly_mileage = round(sum(weekly_daily_mileage), 1)
 
     today_run = None
+    yesterday_date = (now_dt - timedelta(days=1)).strftime("%Y-%m-%d")
+    yesterday_run = None
     for act in activities:
-        if act.get("start_date_local")[:10] == today_date:
+        act_date_str = act.get("start_date_local")[:10]
+        if act_date_str == today_date:
             today_run = act
-            break
+        elif act_date_str == yesterday_date:
+            yesterday_run = act
 
     # QuickChart URL-encoding
     may_chart_payload = {
@@ -224,11 +371,10 @@ def calculate_mileage_and_build_charts(activities):
                     "ticks": {"fontColor": "#888888", "fontSize": 9},
                     "gridLines": {"display": False}
                 }]
-            },
-            "plugins": {"datalabels": False}
+            }
         }
     }
-    may_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(may_chart_payload))}&format=svg"
+    may_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(may_chart_payload))}&format=png"
 
     week_chart_payload = {
         "type": "bar",
@@ -259,23 +405,40 @@ def calculate_mileage_and_build_charts(activities):
                     "ticks": {"fontColor": "#888888", "fontSize": 11, "fontStyle": "bold"},
                     "gridLines": {"display": False}
                 }]
-            },
-            "plugins": {"datalabels": False}
+            }
         }
     }
-    week_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(week_chart_payload))}&format=svg"
+    week_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(week_chart_payload))}&format=png"
 
     return {
         "total_may_mileage": total_may_mileage,
         "total_weekly_mileage": total_weekly_mileage,
         "may_chart_url": may_chart_url,
         "week_chart_url": week_chart_url,
-        "today_run": today_run
+        "today_run": today_run,
+        "yesterday_run": yesterday_run,
+        "may_activities": may_activities
     }
 
 # 5. Gemini AI 통합 추론 파이프라인 (보강/스트레칭 3 Tier 및 피드백 루프 지원)
 def get_ai_coaching_content(stats, condition, routines):
     """Gemini API를 호출하여 동적인 Week Plan, Next Running, 코칭 코멘트, 오늘의 보강운동 루틴을 큐레이션합니다."""
+    
+    # 로컬 DB에 이미 보존된 커스텀 상태가 있으면 우선적으로 활용하여 기존 상태 유지
+    saved_week_plan = load_saved_week_plan()
+    saved_routines = load_saved_routines()
+    saved_coach_comment = load_saved_coach_comment()
+    saved_next_running = load_saved_next_running()
+
+    if saved_week_plan and saved_routines:
+        print("💾 [Pipeline] 사용자의 영구 저장된 커스텀 대시보드 상태를 감지했습니다. 추가 API 호출 없이 기존 상태를 로드합니다.")
+        return {
+            "week_plan": saved_week_plan,
+            "routines": saved_routines,
+            "coach_comment": saved_coach_comment or "주간 러닝 일정을 수정한 뒤, 하단의 'AI 코치 평가받기' 버튼을 눌러 피드백을 받아 보세요!",
+            "next_running": saved_next_running or "추천 목표가 없습니다. 일정을 편집하고 AI 평가를 진행해 주세요."
+        }
+
     today_run = stats["today_run"]
     if today_run:
         dist_km = round(today_run.get("distance", 0) / 1000.0, 2)
@@ -314,51 +477,51 @@ def get_ai_coaching_content(stats, condition, routines):
     {{
       "day": "월",
       "type": "훈련 종류 (예: 빌드업 조깅, 이지 조깅, 보강 운동, 완전 휴식)",
-      "distance": "목표 거리 (예: '6.5km', '-' 등)",
-      "intensity": "강도 표시 (예: '🟢 가볍게', '🟡 중간', '🟠 높음', '💤 OFF')",
-      "detail": "훈련 목표 세부 설명 (예: '심박수 135-140 유지', '폼롤러 및 하체 스트레칭' 등)"
+      "duration": "목표 시간(분) (예: '45', '-' 등)",
+      "pace": "목표 페이스 (예: '6\\'00\"', '-' 등)",
+      "hr": "목표 심박수 (예: '135', '-' 등)"
     }},
     {{
       "day": "화",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }},
     {{
       "day": "수",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }},
     {{
       "day": "목",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }},
     {{
       "day": "금",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }},
     {{
       "day": "토",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }},
     {{
       "day": "일",
       "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "훈련 목표 세부 설명"
+      "duration": "목표 시간(분)",
+      "pace": "목표 페이스",
+      "hr": "목표 심박수"
     }}
   ],
   "next_running": "오늘의 훈련 결과와 몸 상태에 기반하여 예측한 다음 목표 훈련의 권장 명칭, 타겟 거리 및 목표 심박수 가이드를 담은 한 줄 요약 텍스트 (예: '🏃‍♂️ Next Target: 6km 가벼운 회복 조깅 (평균 심박수 135-140 유지)')",
@@ -422,13 +585,13 @@ def get_fallback_ai_content(stats, condition):
     ]
     
     week_plan = [
-        {"day": "월", "type": "완전 휴식", "distance": "-", "intensity": "💤 OFF", "detail": "완전 휴식 및 폼롤러 마사지"},
-        {"day": "화", "type": "이지 조깅", "distance": "6.58 km", "intensity": "🟢 가볍게", "detail": "심박수 135-140 편안한 페이스"},
-        {"day": "수", "type": "빌드업 조깅", "distance": "8.00 km", "intensity": "🟡 중간", "detail": "후반 빌드업 점진 가속"},
-        {"day": "목", "type": "보강 운동", "distance": "-", "intensity": "🟠 코어 집중", "detail": "코어 강화 및 하체 안정화"},
-        {"day": "금", "type": "지속주 런", "distance": "10.00 km", "intensity": "🟡 중간", "detail": "페이스 균일 유지 지속주"},
-        {"day": "토", "type": "조깅 + 질주", "distance": "5.00 km", "intensity": "🟢 가볍게", "detail": "오늘 오후: 5km 조깅 및 100m 질주 3회"},
-        {"day": "일", "type": "주말 장거리", "distance": "15.00 km", "intensity": "🟠 약간 높음", "detail": "일요 LSD 15km 마일리지 누적"}
+        {"day": "월", "type": "완전 휴식", "duration": "-", "pace": "-", "hr": "-"},
+        {"day": "화", "type": "이지 조깅", "duration": "45", "pace": "6'00\"", "hr": "135"},
+        {"day": "수", "type": "빌드업 조깅", "duration": "50", "pace": "5'45\"", "hr": "142"},
+        {"day": "목", "type": "보강 운동", "duration": "-", "pace": "-", "hr": "-"},
+        {"day": "금", "type": "지속주 런", "duration": "60", "pace": "5'15\"", "hr": "148"},
+        {"day": "토", "type": "조깅 + 질주", "duration": "35", "pace": "5'50\"", "hr": "138"},
+        {"day": "일", "type": "주말 장거리", "duration": "90", "pace": "6'15\"", "hr": "140"}
     ]
     
     return {
@@ -445,14 +608,29 @@ def build_html_dashboard(stats, ai):
     # 데이터 직렬화
     week_plan_json = json.dumps(ai["week_plan"], ensure_ascii=False)
     routines_json = json.dumps(ai["routines"], ensure_ascii=False)
+    
+    # notion_routines.md 동적 파싱 및 직렬화
+    parsed_library = parse_notion_routines_markdown()
+    exercise_library_json = json.dumps(parsed_library, ensure_ascii=False)
+    
+    today_weekday_idx = now_dt.weekday()
+    start_of_week = (now_dt - timedelta(days=today_weekday_idx)).date()
+    end_of_week = start_of_week + timedelta(days=6)
+    week_range_str = f"({start_of_week.strftime('%-m.%-d')} ~ {end_of_week.strftime('%-m.%-d')})"
+
     stats_json = json.dumps({
         "total_may_mileage": stats["total_may_mileage"],
         "total_weekly_mileage": stats["total_weekly_mileage"],
         "today_run": stats["today_run"],
+        "yesterday_run": stats["yesterday_run"],
+        "may_activities": stats.get("may_activities", []),
         "today_date": today_date,
         "today_weekday_idx": now_dt.weekday(), # 0: Mon, ..., 6: Sun
         "may_chart_url": stats["may_chart_url"],
-        "week_chart_url": stats["week_chart_url"]
+        "week_chart_url": stats["week_chart_url"],
+        "strava_client_id": STRAVA_CLIENT_ID or "",
+        "strava_client_secret": STRAVA_CLIENT_SECRET or "",
+        "strava_refresh_token": STRAVA_REFRESH_TOKEN or ""
     }, ensure_ascii=False)
     coach_comment_json = json.dumps(ai["coach_comment"], ensure_ascii=False)
     next_running_json = json.dumps(ai["next_running"], ensure_ascii=False)
@@ -570,11 +748,16 @@ def build_html_dashboard(stats, ai):
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* Settings Floating Button */
-        .settings-btn {
+        /* Settings & Sync Floating Area */
+        .top-actions {
             position: absolute;
             right: 0;
             top: 4px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        .settings-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
@@ -591,6 +774,15 @@ def build_html_dashboard(stats, ai):
             background: var(--primary);
             border-color: var(--primary);
             box-shadow: 0 0 10px var(--primary-glow);
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .settings-btn.rotating {
+            animation: rotate 1.5s infinite linear;
+            pointer-events: none;
+            opacity: 0.7;
         }
 
         /* Section Global */
@@ -873,8 +1065,8 @@ def build_html_dashboard(stats, ai):
             gap: 4px;
         }
 
-        /* Next Running Recommend Box */
-        .next-recommend-box {
+        /* Upcoming & Previous Recommend Boxes */
+        .upcoming-recommend-box {
             background: linear-gradient(135deg, rgba(252, 76, 2, 0.15) 0%, rgba(20, 20, 25, 0.5) 100%);
             border: 1px solid rgba(252, 76, 2, 0.25);
             border-radius: 14px;
@@ -884,6 +1076,43 @@ def build_html_dashboard(stats, ai):
             color: #fff;
             box-shadow: 0 4px 10px var(--primary-glow);
             margin-top: 10px;
+        }
+
+        .previous-recommend-box {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(20, 20, 25, 0.4) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .upcoming-header, .previous-header {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .upcoming-header { color: var(--primary); }
+        .previous-header { color: #aaa; }
+        
+        .upcoming-body, .previous-body {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .previous-body { color: #ddd; }
+        
+        .upcoming-detail, .previous-detail {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            line-height: 1.4;
         }
 
         /* Action Buttons */
@@ -1239,7 +1468,7 @@ def build_html_dashboard(stats, ai):
             border-color: var(--primary);
         }
 
-        /* Loading Spinner */
+        /* Loading Spinner & Skeleton */
         .spinner-container {
             display: none;
             flex-direction: column;
@@ -1264,6 +1493,20 @@ def build_html_dashboard(stats, ai):
             color: var(--text-muted);
             margin-top: 10px;
             font-weight: 500;
+        }
+
+        @keyframes skeleton-pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0.6; }
+        }
+        .skeleton-loading {
+            animation: skeleton-pulse 1.5s infinite ease-in-out;
+            color: transparent !important;
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%) !important;
+            background-size: 200% 100% !important;
+            border-radius: 8px;
+            min-height: 48px;
         }
 
         /* Inline Exercise Library Drawer */
@@ -1292,6 +1535,185 @@ def build_html_dashboard(stats, ai):
             width: 100%;
             cursor: pointer;
             margin-bottom: 6px;
+        }
+
+        /* Monthly Heart Rate Zone Tracking Styles */
+        .zone-tracking-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .zone-bar-row {
+            margin-bottom: 12px;
+        }
+        .zone-bar-row:last-child {
+            margin-bottom: 0;
+        }
+        .zone-label-group {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+        .zone-name {
+            font-weight: bold;
+        }
+        .zone-percentage {
+            color: var(--text-muted);
+        }
+        .zone-progress-bg {
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 99px;
+            overflow: hidden;
+            position: relative;
+        }
+        .zone-progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .zone-color-5 { background: linear-gradient(90deg, #ef4444, #b91c1c); }
+        .zone-color-4 { background: linear-gradient(90deg, #f97316, #c2410c); }
+        .zone-color-3 { background: linear-gradient(90deg, #eab308, #a16207); }
+        .zone-color-2 { background: linear-gradient(90deg, #10b981, #047857); }
+        .zone-color-1 { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+
+        /* Monthly Calendar DB Styles */
+        .calendar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .calendar-header-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .calendar-day:hover {
+            background: rgba(252, 76, 2, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .calendar-day.empty {
+            visibility: hidden;
+            cursor: default;
+        }
+        .calendar-day.today {
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+            background: rgba(252, 76, 2, 0.08);
+        }
+        .calendar-day.has-run {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .calendar-day.has-run:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+        .day-number {
+            font-size: 9px;
+            font-weight: bold;
+            color: var(--text-muted);
+            align-self: flex-start;
+        }
+        .calendar-day.today .day-number {
+            color: var(--primary);
+        }
+        .day-icon {
+            font-size: 10px;
+            margin: 1px 0;
+        }
+        .day-dist {
+            font-size: 8px;
+            font-weight: bold;
+            color: #10b981;
+            transform: scale(0.9);
+        }
+        .calendar-details-card {
+            background: rgba(30, 30, 35, 0.7);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: -12px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(252,76,2,0.15);
+            animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .details-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+        .details-item {
+            background: rgba(255,255,255,0.03);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .details-label {
+            color: var(--text-muted);
+            font-size: 9px;
+        }
+        .details-val {
+            font-weight: bold;
+        }
+        .details-feedback {
+            font-size: 11px;
+            background: rgba(252,76,2,0.05);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            line-height: 1.5;
         }
 
         /* Footer */
@@ -1326,8 +1748,11 @@ def build_html_dashboard(stats, ai):
 </head>
 <body>
     <div class="container">
-        <!-- Settings Button -->
-        <button class="settings-btn" id="open-settings-btn" title="AI API Key 설정">⚙️</button>
+        <!-- Settings & Sync Buttons -->
+        <div class="top-actions">
+            <button class="settings-btn" id="sync-refresh-btn" title="Strava 실적 동기화 및 대시보드 리프레시">🔄</button>
+            <button class="settings-btn" id="open-settings-btn" title="AI 및 Strava 연동 설정">⚙️</button>
+        </div>
 
         <!-- Header -->
         <header>
@@ -1338,7 +1763,7 @@ def build_html_dashboard(stats, ai):
             </div>
         </header>
 
-        <!-- Mileage Progress -->
+        <!-- Section 1 & 2: Mileage Progress -->
         <section>
             <h2>📈 Monthly Mileage (May)</h2>
             <div class="progress-card">
@@ -1369,10 +1794,58 @@ def build_html_dashboard(stats, ai):
             </div>
         </section>
 
-        <!-- AI Coaching Feedback Loop Card (New premium layout) -->
+        <!-- Section 3: Monthly Heart Rate Zone Tracking (월간 존 트래킹) -->
         <section>
-            <h2>🤖 AI Coaching Feedback Loop</h2>
-            <div class="loop-card">
+            <h2>💓 Monthly Heart Rate Zone Tracking (월간 심박 존 분배)</h2>
+            <div class="zone-tracking-card" id="zone-tracking-card-container">
+                <!-- JS로 동적 렌더링 -->
+            </div>
+        </section>
+
+        <!-- Section 4: Monthly DB (월간 훈련 캘린더) -->
+        <section>
+            <h2>📅 Monthly DB (월간 훈련 캘린더)</h2>
+            <div class="calendar-card">
+                <div class="calendar-header-days">
+                    <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid-container">
+                    <!-- JS로 달력 일자 렌더링 -->
+                </div>
+            </div>
+            <!-- 달력 상세 정보 패널 -->
+            <div id="calendar-details-panel" class="calendar-details-card" style="display: none;">
+                <!-- JS로 선택일 상세 데이터 렌더링 -->
+            </div>
+        </section>
+
+        <!-- Section 5: Week Plan (주간 러닝 계획) -->
+        <section>
+            <h2>📅 Week Plan (주간 러닝 계획) <span style="font-size:12px; font-weight:normal; color:var(--text-muted); margin-left:6px;">__WEEK_RANGE_STR__</span></h2>
+            <div class="week-plan-card">
+                <table class="week-table" id="week-plan-table">
+                    <thead>
+                        <tr style="border-bottom:1px solid #444; color: var(--primary);">
+                            <th style="width: 15%;">요일</th>
+                            <th style="width: 25%;">타입</th>
+                            <th style="width: 20%;">시간(분)</th>
+                            <th style="width: 20%;">페이스</th>
+                            <th style="width: 20%;">심박</th>
+                        </tr>
+                    </thead>
+                    <tbody id="week-plan-tbody">
+                        <!-- JS로 렌더링 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 6: 데일리 러닝 피드백 (Daily feedback, stats, comments, prev/upcoming & Condition Editor) -->
+        <section>
+            <h2>🏃‍♂️ Daily Running Feedback (<span id="today-date-header">__TODAY_DATE__</span>)</h2>
+            
+            <!-- AI Coaching Loop Card -->
+            <div class="loop-card" style="margin-bottom: 15px;">
                 <div class="loop-step active">
                     <div class="loop-step-title">1단계: 오늘 오후 권장 훈련 (AI Recommend)</div>
                     <div class="loop-step-body" id="loop-recommend-title">로딩 중...</div>
@@ -1389,52 +1862,33 @@ def build_html_dashboard(stats, ai):
                     <div class="loop-step-desc" id="loop-next-recommend-desc">달리기 기록 연동 완료 후 AI가 내일을 위한 최적의 훈련을 갱신합니다.</div>
                 </div>
             </div>
-        </section>
 
-        <!-- Week Plan (Dynamic & Editable) -->
-        <section>
-            <h2>📅 Week Plan (주간 계획표)</h2>
-            <div class="week-plan-card">
-                <table class="week-table" id="week-plan-table">
-                    <thead>
-                        <tr style="border-bottom:1px solid #444; color: var(--primary);">
-                            <th style="width: 12%;">요일</th>
-                            <th style="width: 28%;">훈련 타입</th>
-                            <th style="width: 20%;">거리</th>
-                            <th style="width: 25%;">강도</th>
-                        </tr>
-                    </thead>
-                    <tbody id="week-plan-tbody">
-                        <!-- JS로 렌더링 -->
-                    </tbody>
-                </table>
+            <!-- Daily Running Stats Container -->
+            <div id="daily-running-container" style="margin-bottom: 15px;">
+                <!-- JS로 렌더링 -->
             </div>
-        </section>
 
-        <!-- Daily Running stats -->
-        <section>
-            <h2>🏃‍♂️ Daily Running (<span id="today-date-header">__TODAY_DATE__</span>)</h2>
-            <div id="daily-running-container">
-                <!-- Real Run Stats OR Dynamic Pending Card OR Planned Rest Card rendered via JS -->
-            </div>
-            
-            <!-- AI Coach Box -->
-            <div class="coach-comment-box" style="margin-top: 15px;">
+            <!-- AI Coach Comment Box -->
+            <div class="coach-comment-box" style="margin-bottom: 15px;">
                 <div class="comment-header">📋 AI COACH'S COMMENT</div>
                 <div id="coach-comment-content">
                     <!-- JS로 바인딩 -->
                 </div>
             </div>
-            
-            <div class="next-recommend-box" id="next-running-content">
+
+            <!-- Previous Running (어제 실적 및 계획 대비 분석) -->
+            <div class="previous-recommend-box" id="previous-running-content" style="display: none; margin-bottom: 15px;">
                 <!-- JS로 바인딩 -->
             </div>
-        </section>
 
-        <!-- Condition Editor Card -->
-        <section>
-            <h2>🧠 Today's Condition & AI Feedback</h2>
+            <!-- Upcoming Running (내일 예정 훈련) -->
+            <div class="upcoming-recommend-box" id="next-running-content" style="margin-bottom: 15px;">
+                <!-- JS로 바인딩 -->
+            </div>
+
+            <!-- Condition Editor Inside Section 6 -->
             <div class="condition-editor-card">
+                <div style="font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 8px;">🧠 몸 상태 정보 갱신</div>
                 <div class="input-group">
                     <div class="input-item">
                         <label for="cond-fatigue">피로도</label>
@@ -1461,10 +1915,10 @@ def build_html_dashboard(stats, ai):
                     <input type="text" id="cond-notes" value="" placeholder="예: 어깨가 결림. 오늘은 가볍게 달릴 예정..." />
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button class="btn" id="evaluate-btn" style="flex: 3;">
+                    <button class="btn" id="evaluate-btn" style="flex: 3; margin-top: 0;">
                         <span>✨ 수정 후 AI 코치 평가받기</span>
                     </button>
-                    <button class="btn btn-secondary" id="reset-coaching-btn" style="flex: 1; margin-top: 12px;" title="초기 코치 제안으로 되돌리기">
+                    <button class="btn btn-secondary" id="reset-coaching-btn" style="flex: 1; margin-top: 0;" title="초기 코치 제안으로 되돌리기">
                         <span>🔄 초기화</span>
                     </button>
                 </div>
@@ -1475,9 +1929,9 @@ def build_html_dashboard(stats, ai):
             </div>
         </section>
 
-        <!-- Today's Routine 3-Tier block checklist -->
+        <!-- Section 7: Routine For Today (보강운동 세트) -->
         <section>
-            <h2>🧘‍♂️ Routine For Today (3-Tier 보강 블록)</h2>
+            <h2>🧘‍♂️ Routine For Today (보강운동 세트)</h2>
             <div class="progress-card" style="padding: 12px; margin-bottom: 20px;">
                 <!-- 1. Base Tier -->
                 <div class="tier-header tier-header-base">
@@ -1530,18 +1984,42 @@ def build_html_dashboard(stats, ai):
         </footer>
     </div>
 
-    <!-- API Key Settings Modal -->
+    <!-- API Key & Strava Settings Modal -->
     <div class="overlay" id="settings-overlay">
-        <div class="modal">
+        <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
-                <span>🔑 Gemini API Key 설정</span>
+                <span>🔑 연동 및 API 설정 (Settings)</span>
                 <button class="modal-close" id="close-settings-btn">&times;</button>
             </div>
-            <div class="modal-body">
-                <p>수정 후 실시간 AI 평가를 받으려면 Gemini API Key가 필요합니다. 입력된 키는 외부 서버로 전송되지 않고 브라우저에 안전하게 저장됩니다.</p>
-                <label style="font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; display: block;">GEMINI API KEY</label>
-                <input type="password" id="api-key-input" placeholder="AIzaSy..." />
-                <button class="btn" id="save-settings-btn">설정 저장</button>
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="font-size: 12px; line-height: 1.4; color: #ddd; margin-bottom: 5px;">
+                    대시보드와 AI 코칭 및 Strava 연동을 위한 설정입니다. 저장 시 로컬 서버의 <code>.env</code> 파일에 영구 기록됩니다.
+                </p>
+                
+                <div>
+                    <label style="font-size: 11px; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; display: block;">GEMINI API KEY</label>
+                    <input type="password" id="api-key-input" placeholder="AIzaSy..." style="width: 100%;" />
+                </div>
+                
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; margin-top: 4px;">
+                    <label style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">STRAVA CLIENT ID</label>
+                    <input type="text" id="strava-client-id-input" placeholder="248357" style="width: 100%;" />
+                </div>
+                
+                <div>
+                    <label style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">STRAVA CLIENT SECRET</label>
+                    <input type="password" id="strava-client-secret-input" placeholder="c56f555bb41..." style="width: 100%;" />
+                </div>
+                
+                <div>
+                    <label style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">STRAVA REFRESH TOKEN</label>
+                    <input type="password" id="strava-refresh-token-input" placeholder="토큰 입력..." style="width: 100%;" />
+                    <span style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 2px;">
+                        💡 비어있을 경우 데모 데이터로 구동됩니다. 토큰 발급은 <code>get_strava_tokens.py</code>를 실행하세요.
+                    </span>
+                </div>
+                
+                <button class="btn" id="save-settings-btn" style="margin-top: 10px;">설정 저장</button>
             </div>
         </div>
     </div>
@@ -1557,7 +2035,8 @@ def build_html_dashboard(stats, ai):
         const CONDITION_DATA = __CONDITION_JSON__;
 
         // 32종의 노션 보강운동 라이브러리 전체 데이터 (category가 완벽히 매핑됨)
-        const EXERCISE_LIBRARY = [
+        const DYNAMIC_EXERCISE_LIBRARY = __EXERCISE_LIBRARY_JSON__;
+        const BACKUP_EXERCISE_LIBRARY = [
             { "category": "Base", "target": "하체 전반", "name": "Foam Roller Set & Stretching", "reps": "1~2분 (부위별)", "sets": "1세트", "tips": "폼롤러 / 종아리, 중둔근, 대퇴사두 등 이완 중심" },
             { "category": "Workout", "target": "코어", "name": "Deadbug", "reps": "10회", "sets": "3세트", "tips": "허리를 바닥에 강하게 밀착하여 코어 재건 / 어깨 석회 통증 주의" },
             { "category": "Workout", "target": "둔근 (중둔근)", "name": "Side Plank + Clamshell", "reps": "좌우 각 12회", "sets": "3세트", "tips": "골반 고정, 엉덩이 옆쪽 중둔근 자극 확인" },
@@ -1591,6 +2070,7 @@ def build_html_dashboard(stats, ai):
             { "category": "Workout", "target": "전신 / 코어", "name": "Forward Lean Walk with Waterbag", "reps": "15걸음", "sets": "3세트", "tips": "워터백 부하 저항 극복 전진" },
             { "category": "Pre-Run", "target": "발목 / 민첩성", "name": "Plate Quick Tap", "reps": "좌우 각 15회", "sets": "3세트", "tips": "원판 빠르게 찍고 복귀 발목 탄성 제어" }
         ];
+        const EXERCISE_LIBRARY = DYNAMIC_EXERCISE_LIBRARY && DYNAMIC_EXERCISE_LIBRARY.length > 0 ? DYNAMIC_EXERCISE_LIBRARY : BACKUP_EXERCISE_LIBRARY;
 
         // 2. 어플리케이션 상태(State) 관리 객체
         let appState = {
@@ -1599,16 +2079,104 @@ def build_html_dashboard(stats, ai):
             apiKey: ""
         };
 
+        const getBackendUrl = (path) => {
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:') {
+                return `http://localhost:8000${path}`;
+            }
+            return path;
+        };
+
+        async function saveStateToBackend() {
+            const fatigue = document.getElementById('cond-fatigue').value;
+            const pain = document.getElementById('cond-pain').value;
+            const notes = document.getElementById('cond-notes').value;
+
+            const payload = {
+                week_plan: appState.weekPlan,
+                routines: appState.routines,
+                condition: {
+                    fatigue: fatigue,
+                    pain: pain,
+                    notes: notes
+                },
+                coach_comment: localStorage.getItem('project330_coach_comment') || INITIAL_COACH_COMMENT,
+                next_running: localStorage.getItem('project330_next_running') || INITIAL_NEXT_RUNNING
+            };
+
+            try {
+                const response = await fetch(getBackendUrl('/api/save'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    console.warn("Failed to auto-save to backend server.");
+                } else {
+                    console.log("State auto-saved to backend server successfully.");
+                }
+            } catch(e) {
+                console.warn("Error auto-saving state to backend:", e);
+            }
+        }
+
         // 3. 초기화 실행
         document.addEventListener('DOMContentLoaded', () => {
+            checkWeeklyReset();
             initAppState();
             renderSettingsModal();
             renderWeekPlanTable();
+            renderZoneTracking();
+            renderCalendarDB();
             renderDailyRunning();
             renderRoutines();
             setupAddExerciseLibrary();
             bindEvents();
         });
+
+        // Sunday 11:00 PM KST reset checker
+        function checkWeeklyReset() {
+            try {
+                const now = new Date();
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                const kstNow = new Date(utc + (3600000 * 9));
+                
+                const currentDay = kstNow.getDay(); 
+                const daysToSunday = currentDay === 0 ? 0 : 7 - currentDay;
+                
+                const sundayReset = new Date(kstNow);
+                sundayReset.setDate(kstNow.getDate() + daysToSunday);
+                sundayReset.setHours(23, 0, 0, 0); 
+                
+                const weekId = sundayReset.toISOString().slice(0, 10);
+                
+                if (kstNow.getTime() >= sundayReset.getTime()) {
+                    const lastReset = localStorage.getItem('project330_last_reset_week');
+                    if (lastReset !== weekId) {
+                        console.log("Weekly plan KST reset triggered at Sunday 11 PM KST.");
+                        localStorage.setItem('project330_last_reset_week', weekId);
+                        
+                        localStorage.removeItem('project330_week_plan');
+                        localStorage.removeItem('project330_routines_today');
+                        localStorage.removeItem('project330_coach_comment');
+                        localStorage.removeItem('project330_next_running');
+                        
+                        fetch('/api/reset')
+                            .then(() => {
+                                console.log("Backend weekly plan cache reset successful.");
+                                location.reload();
+                            })
+                            .catch(e => {
+                                console.warn("Error resetting backend:", e);
+                                location.reload();
+                            });
+                    }
+                }
+            } catch (e) {
+                console.warn("Error running weekly reset check:", e);
+            }
+        }
 
         // 상태 초기화 (localStorage 우선 로드, 안전 파싱 가드 내장)
         function initAppState() {
@@ -1670,18 +2238,16 @@ def build_html_dashboard(stats, ai):
                 tr.innerHTML = `
                     <td style="padding: 8px 4px; ${fontStyle}">${isTodayLabel}</td>
                     <td>
-                        <input type="text" value="${plan.type}" class="week-edit-input" data-idx="${index}" data-field="type" />
+                        <input type="text" value="${plan.type || '-'}" class="week-edit-input" data-idx="${index}" data-field="type" />
                     </td>
                     <td>
-                        <input type="text" value="${plan.distance}" class="week-edit-input" data-idx="${index}" data-field="distance" style="width: 80%;" />
+                        <input type="text" value="${plan.duration || '-'}" class="week-edit-input" data-idx="${index}" data-field="duration" style="width: 90%; text-align: center;" />
                     </td>
                     <td>
-                        <select class="week-edit-select" data-idx="${index}" data-field="intensity">
-                            <option value="🟢 가볍게" ${plan.intensity === '🟢 가볍게' ? 'selected' : ''}>🟢 가볍게</option>
-                            <option value="🟡 중간" ${plan.intensity === '🟡 중간' ? 'selected' : ''}>🟡 중간</option>
-                            <option value="🟠 높음" ${plan.intensity === '🟠 높음' ? 'selected' : ''}>🟠 높음</option>
-                            <option value="💤 OFF" ${plan.intensity === '💤 OFF' ? 'selected' : ''}>💤 OFF</option>
-                        </select>
+                        <input type="text" value="${plan.pace || '-'}" class="week-edit-input" data-idx="${index}" data-field="pace" style="width: 90%; text-align: center;" />
+                    </td>
+                    <td>
+                        <input type="text" value="${plan.hr || '-'}" class="week-edit-input" data-idx="${index}" data-field="hr" style="width: 90%; text-align: center;" />
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1698,27 +2264,225 @@ def build_html_dashboard(stats, ai):
                     if (parseInt(idx) === todayIdx) {
                         renderDailyRunning();
                     }
+                    saveStateToBackend();
+                    runAIEvaluation(true);
                 });
             });
+        }
 
-            tbody.querySelectorAll('.week-edit-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const idx = e.target.dataset.idx;
-                    const field = e.target.dataset.field;
-                    appState.weekPlan[idx][field] = e.target.value;
-                    localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
-                    
-                    if (parseInt(idx) === todayIdx) {
-                        renderDailyRunning();
+        // 4.1 Monthly Cardiac HR Zone Tracking 렌더러
+        function renderZoneTracking() {
+            const container = document.getElementById('zone-tracking-card-container');
+            if (!container) return;
+
+            let zones = { z1: 0, z2: 0, z3: 0, z4: 0, z5: 0 };
+            const activities = STATS_DATA.may_activities || [];
+
+            if (activities.length === 0) {
+                zones = { z1: 20, z2: 120, z3: 90, z4: 45, z5: 15 };
+            } else {
+                activities.forEach(act => {
+                    const durationMin = (act.moving_time || act.elapsed_time || 0) / 60;
+                    const avgHR = act.average_heartrate;
+
+                    if (avgHR) {
+                        if (avgHR >= 165) {
+                            zones.z5 += durationMin;
+                        } else if (avgHR >= 150) {
+                            zones.z4 += durationMin;
+                        } else if (avgHR >= 140) {
+                            zones.z3 += durationMin;
+                        } else if (avgHR >= 130) {
+                            zones.z2 += durationMin;
+                        } else {
+                            zones.z1 += durationMin;
+                        }
+                    } else {
+                        const name = (act.name || "").toLowerCase();
+                        if (name.includes("lsd") || name.includes("long") || name.includes("장거리")) {
+                            zones.z2 += durationMin * 0.7;
+                            zones.z3 += durationMin * 0.3;
+                        } else if (name.includes("interval") || name.includes("speed") || name.includes("인터벌")) {
+                            zones.z4 += durationMin * 0.4;
+                            zones.z5 += durationMin * 0.6;
+                        } else if (name.includes("tempo") || name.includes("build") || name.includes("지속주")) {
+                            zones.z3 += durationMin * 0.6;
+                            zones.z4 += durationMin * 0.4;
+                        } else {
+                            zones.z2 += durationMin * 0.8;
+                            zones.z1 += durationMin * 0.2;
+                        }
                     }
                 });
-            });
+            }
+
+            const totalMin = zones.z1 + zones.z2 + zones.z3 + zones.z4 + zones.z5;
+            const pct = (val) => totalMin > 0 ? Math.round((val / totalMin) * 100) : 0;
+
+            container.innerHTML = `
+                <div class="zone-bar-row">
+                    <div class="zone-label-group">
+                        <span class="zone-name" style="color: #ef4444;">Zone 5 (무산소 / 고강도 인터벌)</span>
+                        <span class="zone-percentage">${pct(zones.z5)}% (${Math.round(zones.z5)}분)</span>
+                    </div>
+                    <div class="zone-progress-bg">
+                        <div class="zone-progress-fill zone-color-5" style="width: ${pct(zones.z5)}%;"></div>
+                    </div>
+                </div>
+                <div class="zone-bar-row">
+                    <div class="zone-label-group">
+                        <span class="zone-name" style="color: #f97316;">Zone 4 (젖산역치 / 페이스주)</span>
+                        <span class="zone-percentage">${pct(zones.z4)}% (${Math.round(zones.z4)}분)</span>
+                    </div>
+                    <div class="zone-progress-bg">
+                        <div class="zone-progress-fill zone-color-4" style="width: ${pct(zones.z4)}%;"></div>
+                    </div>
+                </div>
+                <div class="zone-bar-row">
+                    <div class="zone-label-group">
+                        <span class="zone-name" style="color: #eab308;">Zone 3 (유산소 템포 / 빌드업)</span>
+                        <span class="zone-percentage">${pct(zones.z3)}% (${Math.round(zones.z3)}분)</span>
+                    </div>
+                    <div class="zone-progress-bg">
+                        <div class="zone-progress-fill zone-color-3" style="width: ${pct(zones.z3)}%;"></div>
+                    </div>
+                </div>
+                <div class="zone-bar-row">
+                    <div class="zone-label-group">
+                        <span class="zone-name" style="color: #10b981;">Zone 2 (기초 유산소 / 이지 조깅)</span>
+                        <span class="zone-percentage">${pct(zones.z2)}% (${Math.round(zones.z2)}분)</span>
+                    </div>
+                    <div class="zone-progress-bg">
+                        <div class="zone-progress-fill zone-color-2" style="width: ${pct(zones.z2)}%;"></div>
+                    </div>
+                </div>
+                <div class="zone-bar-row">
+                    <div class="zone-label-group">
+                        <span class="zone-name" style="color: #3b82f6;">Zone 1 (회복 러닝 / 웜업)</span>
+                        <span class="zone-percentage">${pct(zones.z1)}% (${Math.round(zones.z1)}분)</span>
+                    </div>
+                    <div class="zone-progress-bg">
+                        <div class="zone-progress-fill zone-color-1" style="width: ${pct(zones.z1)}%;"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 4.2 Monthly DB 달력 렌더러
+        function renderCalendarDB() {
+            const grid = document.getElementById('calendar-grid-container');
+            if (!grid) return;
+
+            grid.innerHTML = "";
+            const activities = STATS_DATA.may_activities || [];
+            
+            for (let i = 0; i < 4; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "calendar-day empty";
+                grid.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= 31; day++) {
+                const dateStr = `2026-05-${day.toString().padStart(2, '0')}`;
+                const cell = document.createElement('div');
+                cell.className = "calendar-day";
+                
+                if (dateStr === STATS_DATA.today_date) {
+                    cell.classList.add('today');
+                }
+
+                const dailyRuns = activities.filter(act => act.start_date_local && act.start_date_local.startsWith(dateStr));
+                
+                let dayContent = `<span class="day-number">${day}</span>`;
+                let runData = null;
+
+                if (dailyRuns.length > 0) {
+                    runData = dailyRuns[0];
+                    cell.classList.add('has-run');
+                    const distKm = (runData.distance / 1000).toFixed(1);
+                    dayContent += `
+                        <span class="day-icon">🏃‍♂️</span>
+                        <span class="day-dist">${distKm}k</span>
+                    `;
+                }
+
+                cell.innerHTML = dayContent;
+                cell.addEventListener('click', () => showCalendarDetails(day, dateStr, runData));
+                grid.appendChild(cell);
+            }
+        }
+
+        function showCalendarDetails(dayNum, dateStr, run) {
+            const panel = document.getElementById('calendar-details-panel');
+            if (!panel) return;
+
+            panel.style.display = "block";
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            const formattedDate = `2026년 5월 ${dayNum}일`;
+            
+            if (run) {
+                const distKm = (run.distance / 1000).toFixed(2);
+                const durationMin = Math.round(run.moving_time / 60);
+                const paceMin = Math.floor(durationMin / distKm);
+                const paceSec = Math.round(((durationMin / distKm) - paceMin) * 60);
+                const avgHR = run.average_heartrate ? `${Math.round(run.average_heartrate)} bpm` : "정보 없음";
+                const maxHR = run.max_heartrate ? `${Math.round(run.max_heartrate)} bpm` : "정보 없음";
+                
+                let customFeedback = "";
+                if (run.average_heartrate && run.average_heartrate >= 155) {
+                    customFeedback = "심박수가 다소 고강도 존에 오래 머물렀습니다. 다음 날은 보강 운동이나 완전 휴식을 통해 아킬레스건과 슬개건 등 관절 결합 조직을 이완시켜 주는 것을 강력하게 권장합니다.";
+                } else {
+                    customFeedback = "아주 훌륭한 심장 유산소 능동 제어 하에 잘 소화된 훈련입니다. 이 페이스와 균일한 스트로크를 유지하시면 2027년 3시간 30분 마라톤 도달을 위한 탄탄한 기초가 완성됩니다.";
+                }
+
+                panel.innerHTML = `
+                    <div class="details-title">
+                        <span>🏆 ${formattedDate} 운동 실적</span>
+                        <span style="font-size:10px; color:var(--text-muted);">${run.name}</span>
+                    </div>
+                    <div class="details-grid">
+                        <div class="details-item">
+                            <div class="details-label">러닝 거리</div>
+                            <div class="details-val" style="color:var(--primary); font-size:14px;">${distKm} km</div>
+                        </div>
+                        <div class="details-item">
+                            <div class="details-label">달린 시간</div>
+                            <div class="details-val">${durationMin}분</div>
+                        </div>
+                        <div class="details-item">
+                            <div class="details-label">평균 페이스</div>
+                            <div class="details-val">${paceMin}'${paceSec.toString().padStart(2, '0')}" /km</div>
+                        </div>
+                        <div class="details-item">
+                            <div class="details-label">평균/최대 심박</div>
+                            <div class="details-val">${avgHR} / ${maxHR}</div>
+                        </div>
+                    </div>
+                    <div class="details-feedback">
+                        <strong>💡 AI 분석 피드백:</strong><br/>
+                        ${customFeedback}
+                    </div>
+                `;
+            } else {
+                panel.innerHTML = `
+                    <div class="details-title">
+                        <span>📅 ${formattedDate} 일정</span>
+                        <span style="font-size:10px; color:var(--text-muted);">러닝 기록 없음</span>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-muted); text-align:center; padding: 20px 0;">
+                        이 날은 완료된 Strava 러닝 로그가 없습니다.<br/>
+                        충분한 완전 휴식 및 하체 가동성 보강운동 세트를 권장하는 일정입니다. 🧘‍♂️
+                    </div>
+                `;
+            }
         }
 
         // 5. Daily Running & AI Feedback Loop 렌더러
         function renderDailyRunning() {
             const container = document.getElementById('daily-running-container');
             const commentBox = document.getElementById('coach-comment-content');
+            const previousRecommendBox = document.getElementById('previous-running-content');
             const nextRecommendBox = document.getElementById('next-running-content');
             if (!container) return;
 
@@ -1726,7 +2490,6 @@ def build_html_dashboard(stats, ai):
             const nextRecommend = localStorage.getItem('project330_next_running') || INITIAL_NEXT_RUNNING;
 
             commentBox.innerHTML = coachComment;
-            nextRecommendBox.innerHTML = nextRecommend;
 
             // AI Feedback Loop 상태 주입
             const todayIdx = STATS_DATA.today_weekday_idx;
@@ -1734,6 +2497,86 @@ def build_html_dashboard(stats, ai):
             
             // Step 1: AI의 추천 훈련 채워넣기
             document.getElementById('loop-recommend-title').innerHTML = `🏃‍♂️ 오늘 예정: ${todayPlan.type} (${todayPlan.distance})`;
+
+            // 1) Previous Running 렌더링
+            const yesterdayIdx = (todayIdx - 1 + 7) % 7;
+            const yesterdayPlan = appState.weekPlan[yesterdayIdx] || { type: "완전 휴식", distance: "-", intensity: "💤 OFF" };
+            
+            const yesterdayDate = new Date(STATS_DATA.today_date);
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const yesterdayStr = `${yesterdayDate.getMonth() + 1}월 ${yesterdayDate.getDate()}일`;
+            
+            const yesterdayRun = STATS_DATA.yesterday_run;
+            if (previousRecommendBox) {
+                if (yesterdayRun) {
+                    const distKm = (yesterdayRun.distance / 1000.0).toFixed(2);
+                    const totalSec = yesterdayRun.moving_time;
+                    let paceStr = "-";
+                    if (parseFloat(distKm) > 0) {
+                        const secPerKm = totalSec / parseFloat(distKm);
+                        const paceMin = Math.floor(secPerKm / 60);
+                        const paceSec = Math.round(secPerKm % 60);
+                        paceStr = `${paceMin}'${paceSec.toString().padStart(2, '0')}"`;
+                    }
+                    const avgHr = yesterdayRun.average_heartrate || "-";
+                    
+                    previousRecommendBox.innerHTML = `
+                        <div class="previous-header">⏮️ Previous Running (어제 ${yesterdayStr} 실적)</div>
+                        <div class="previous-body" style="color: #4ade80;">
+                            🏃‍♂️ 실제: ${yesterdayRun.name} - ${distKm}km (${paceStr}/km, 심박수: ${avgHr}bpm) 완수 완료! ✅
+                        </div>
+                        <div class="previous-detail">
+                            어제 계획: ${yesterdayPlan.type} (${yesterdayPlan.distance}) | 강도: ${yesterdayPlan.intensity}
+                        </div>
+                    `;
+                    previousRecommendBox.style.display = 'block';
+                } else {
+                    if (yesterdayPlan.intensity.includes("OFF") || yesterdayPlan.type.includes("휴식")) {
+                        previousRecommendBox.innerHTML = `
+                            <div class="previous-header">⏮️ Previous Running (어제 ${yesterdayStr} 실적)</div>
+                            <div class="previous-body" style="color: #ddd;">
+                                💤 계획대로 휴식 완료!
+                            </div>
+                            <div class="previous-detail">
+                                어제 계획: 완전 휴식 및 피로 회복
+                            </div>
+                        `;
+                        previousRecommendBox.style.display = 'block';
+                    } else {
+                        previousRecommendBox.innerHTML = `
+                            <div class="previous-header">⏮️ Previous Running (어제 ${yesterdayStr} 실적)</div>
+                            <div class="previous-body" style="color: var(--text-muted);">
+                                ⚠️ 실적 기록 없음 (계획 미완수 또는 스트라바 연동 대기)
+                            </div>
+                            <div class="previous-detail">
+                                어제 계획: ${yesterdayPlan.type} (${yesterdayPlan.distance}) | 강도: ${yesterdayPlan.intensity}
+                            </div>
+                        `;
+                        previousRecommendBox.style.display = 'block';
+                    }
+                }
+            }
+
+            // 2) Upcoming Running 렌더링 (내일 예정)
+            const tomorrowIdx = (todayIdx + 1) % 7;
+            const tomorrowPlan = appState.weekPlan[tomorrowIdx] || { type: "완전 휴식", distance: "-", intensity: "💤 OFF", detail: "완전 휴식 및 피로 회복" };
+            
+            const tomorrowDate = new Date(STATS_DATA.today_date);
+            tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+            const tomorrowStr = `${tomorrowDate.getMonth() + 1}월 ${tomorrowDate.getDate()}일`;
+
+            if (nextRecommendBox) {
+                nextRecommendBox.innerHTML = `
+                    <div class="upcoming-header">⏭️ Upcoming Running (내일 ${tomorrowStr} 예정 훈련)</div>
+                    <div class="upcoming-body" style="color: var(--primary);">
+                        🏃‍♂️ ${tomorrowPlan.type} (${tomorrowPlan.distance}) - 강도: ${tomorrowPlan.intensity}
+                    </div>
+                    <div class="upcoming-detail">
+                        세부 목표: ${tomorrowPlan.detail || "세부 설명 없음"}<br/>
+                        <span style="font-weight: 500; color: #fff; margin-top: 4px; display: inline-block;">💡 코치 코멘트: ${nextRecommend}</span>
+                    </div>
+                `;
+            }
 
             const todayRun = STATS_DATA.today_run;
             if (todayRun) {
@@ -1865,6 +2708,7 @@ def build_html_dashboard(stats, ai):
                             block.classList.remove('completed');
                         }
                         localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
+                        saveStateToBackend();
                     });
 
                     listContainer.appendChild(block);
@@ -1896,6 +2740,7 @@ def build_html_dashboard(stats, ai):
 
             localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
             renderRoutines();
+            saveStateToBackend();
         };
 
         // 루틴 블록 삭제 (X 클릭 시)
@@ -1903,6 +2748,7 @@ def build_html_dashboard(stats, ai):
             appState.routines = appState.routines.filter(item => item.id !== id);
             localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
             renderRoutines();
+            saveStateToBackend();
         };
 
         // 루틴 블록 편집
@@ -1923,6 +2769,7 @@ def build_html_dashboard(stats, ai):
 
             localStorage.setItem('project330_routines_today', JSON.stringify(appState.routines));
             renderRoutines();
+            saveStateToBackend();
         };
 
         // 7. 각 티어별 인라인 운동 리스트 팝업 구성
@@ -1979,21 +2826,37 @@ def build_html_dashboard(stats, ai):
 
             select.value = "";
             toggleAddDrawer(tier);
+            saveStateToBackend();
         };
 
         // 8. 초기 코치 추천 데이터 상태로 완전히 되돌리기 (Escape hatch)
-        function resetToOriginalCoachRecommendation() {
+        async function resetToOriginalCoachRecommendation() {
             if (confirm("정말로 모든 사용자 설정(주간 계획표 수정, 보강운동 체크/추가 상태)을 지우고 AI 코치의 최초 추천 훈련과 보강운동 루틴으로 되돌리시겠습니까?")) {
                 localStorage.removeItem('project330_week_plan');
                 localStorage.removeItem('project330_routines_today');
                 localStorage.removeItem('project330_coach_comment');
                 localStorage.removeItem('project330_next_running');
                 
+                try {
+                    const response = await fetch(getBackendUrl('/api/reset'), {
+                        method: 'POST'
+                    });
+                    if (response.ok) {
+                        alert("🔄 로컬 및 서버 캐시 초기화 완료! 페이지가 새로고침되어 AI의 최초 코칭 처방이 재갱신됩니다.");
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                        return;
+                    }
+                } catch(e) {
+                    console.warn("Error calling backend reset:", e);
+                }
+                
                 initAppState();
                 renderWeekPlanTable();
                 renderDailyRunning();
                 renderRoutines();
-                alert("🔄 AI 코치 최초 제안 데이터로 안전하게 초기화되었습니다!");
+                alert("🔄 로컬 저장소 캐시가 초기화되었습니다.");
             }
         }
 
@@ -2002,6 +2865,20 @@ def build_html_dashboard(stats, ai):
             const input = document.getElementById('api-key-input');
             if (input) {
                 input.value = appState.apiKey;
+            }
+            
+            const clientIdInput = document.getElementById('strava-client-id-input');
+            const clientSecretInput = document.getElementById('strava-client-secret-input');
+            const refreshTokenInput = document.getElementById('strava-refresh-token-input');
+            
+            if (clientIdInput && STATS_DATA.strava_client_id) {
+                clientIdInput.value = STATS_DATA.strava_client_id;
+            }
+            if (clientSecretInput && STATS_DATA.strava_client_secret) {
+                clientSecretInput.value = STATS_DATA.strava_client_secret;
+            }
+            if (refreshTokenInput && STATS_DATA.strava_refresh_token) {
+                refreshTokenInput.value = STATS_DATA.strava_refresh_token;
             }
         }
 
@@ -2015,18 +2892,25 @@ def build_html_dashboard(stats, ai):
         }
 
         // 10. 수정 후 AI 코치 평가받기 (Gemini API 실시간 AJAX 클라이언트 추론 - 몸상태별 주간계획표 자동 재분배 탑재)
-        async function runAIEvaluation() {
+        async function runAIEvaluation(isSilent = false) {
             if (!appState.apiKey) {
-                alert("Gemini API Key를 먼저 설정해 주세요! 우측 상단의 ⚙️ 아이콘을 누르면 쉽게 등록할 수 있습니다.");
-                toggleSettingsModal(true);
+                if (!isSilent) {
+                    alert("Gemini API Key를 먼저 설정해 주세요! 우측 상단의 ⚙️ 아이콘을 누르면 쉽게 등록할 수 있습니다.");
+                    toggleSettingsModal(true);
+                }
                 return;
             }
 
             const evaluateBtn = document.getElementById('evaluate-btn');
             const loading = document.getElementById('ai-loading');
+            const commentBox = document.getElementById('coach-comment-content');
             
-            evaluateBtn.style.display = 'none';
-            loading.style.display = 'flex';
+            if (!isSilent) {
+                evaluateBtn.style.display = 'none';
+                loading.style.display = 'flex';
+            } else {
+                commentBox.innerHTML = '<div class="skeleton-loading">AI 코치가 새로운 일정을 반영하여 피드백을 재분석 중입니다...</div>';
+            }
 
             const fatigue = document.getElementById('cond-fatigue').value;
             const pain = document.getElementById('cond-pain').value;
@@ -2061,10 +2945,10 @@ ${formattedPlan}
   "week_plan": [
     {
       "day": "월",
-      "type": "훈련 종류",
-      "distance": "목표 거리",
-      "intensity": "강도 표시",
-      "detail": "세부 설명"
+      "type": "훈련 종류 (예: 빌드업 조깅, 이지 조깅, 보강 운동, 완전 휴식)",
+      "duration": "목표 시간(분) (예: '45', '-' 등)",
+      "pace": "목표 페이스 (예: '6\\'00\"', '-' 등)",
+      "hr": "목표 심박수 (예: '135', '-' 등)"
     },
     ... (월요일부터 일요일까지 몸 상태에 맞춰 완전히 재분배된 7일간의 계획표 객체 리스트 순서대로)
   ]
@@ -2119,14 +3003,29 @@ ${formattedPlan}
                 // UI 리렌더링
                 renderWeekPlanTable();
                 renderDailyRunning();
-                alert("🎉 AI 코치님이 몸 상태에 맞게 전체 주간 계획표를 안전하게 조정하고 오늘의 처방을 갱신하였습니다!");
+                renderZoneTracking();
+                renderCalendarDB();
+
+                // 서버 사이드 DB 영구저장 호출
+                await saveStateToBackend();
+
+                if (!isSilent) {
+                    alert("🎉 AI 코치님이 몸 상태에 맞게 전체 주간 계획표를 안전하게 조정하고 오늘의 처방을 갱신하였습니다!");
+                }
 
             } catch (error) {
                 console.error("Gemini AI API Call Failure:", error);
-                alert(`⚠️ AI 코치 호출 중 문제가 발생했습니다: ${error.message}\n(API 키를 다시 확인해 보시거나 잠시 후 다시 시도해 주세요)`);
+                if (!isSilent) {
+                    alert(`⚠️ AI 코치 호출 중 문제가 발생했습니다: ${error.message}\n(API 키를 다시 확인해 보시거나 잠시 후 다시 시도해 주세요)`);
+                } else {
+                    const prevComment = localStorage.getItem('project330_coach_comment') || INITIAL_COACH_COMMENT;
+                    commentBox.innerHTML = prevComment;
+                }
             } finally {
-                loading.style.display = 'none';
-                evaluateBtn.style.display = 'inline-flex';
+                if (!isSilent) {
+                    loading.style.display = 'none';
+                    evaluateBtn.style.display = 'inline-flex';
+                }
             }
         }
 
@@ -2135,16 +3034,93 @@ ${formattedPlan}
             document.getElementById('open-settings-btn').addEventListener('click', () => toggleSettingsModal(true));
             document.getElementById('close-settings-btn').addEventListener('click', () => toggleSettingsModal(false));
             
-            document.getElementById('save-settings-btn').addEventListener('click', () => {
-                const input = document.getElementById('api-key-input').value.trim();
-                appState.apiKey = input;
-                localStorage.setItem('gemini_api_key', input);
-                alert("Gemini API Key 설정이 저장되었습니다!");
-                toggleSettingsModal(false);
+            document.getElementById('save-settings-btn').addEventListener('click', async () => {
+                const geminiKey = document.getElementById('api-key-input').value.trim();
+                const clientId = document.getElementById('strava-client-id-input').value.trim();
+                const clientSecret = document.getElementById('strava-client-secret-input').value.trim();
+                const refreshToken = document.getElementById('strava-refresh-token-input').value.trim();
+
+                appState.apiKey = geminiKey;
+                localStorage.setItem('gemini_api_key', geminiKey);
+
+                const payload = {
+                    gemini_api_key: geminiKey,
+                    strava_client_id: clientId,
+                    strava_client_secret: clientSecret,
+                    strava_refresh_token: refreshToken
+                };
+
+                try {
+                    const response = await fetch(getBackendUrl('/api/save_settings'), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        alert("🎉 연동 설정이 성공적으로 저장되었습니다! 갱신된 데이터를 반영하기 위해 대시보드가 리빌드됩니다.");
+                        toggleSettingsModal(false);
+                        location.reload();
+                    } else {
+                        alert("⚠️ 서버에 설정을 보존하는 도중 오류가 발생했습니다.");
+                    }
+                } catch(e) {
+                    console.error("Error saving settings:", e);
+                    alert("⚠️ 로컬 백엔드 서버가 구동 중이지 않아, 브라우저 로컬 저장소에만 임시 보존되었습니다. (서버 가동 권장)");
+                    toggleSettingsModal(false);
+                }
             });
 
-            document.getElementById('evaluate-btn').addEventListener('click', runAIEvaluation);
+            // 🔄 동기화 버튼 클릭 이벤트
+            const syncBtn = document.getElementById('sync-refresh-btn');
+            if (syncBtn) {
+                syncBtn.addEventListener('click', async () => {
+                    syncBtn.classList.add('rotating');
+                    
+                    const commentBox = document.getElementById('coach-comment-content');
+                    commentBox.innerHTML = '<div class="skeleton-loading">Strava 최신 활동 로그를 동기화하고 대시보드를 새로 빌드하는 중입니다...</div>';
+
+                    try {
+                        const response = await fetch(getBackendUrl('/api/sync'), {
+                            method: 'POST'
+                        });
+                        
+                        if (response.ok) {
+                            alert("🎉 Strava 활동 로그 동기화 및 대시보드 재생성이 완료되었습니다!");
+                            location.reload();
+                        } else {
+                            const resData = await response.json();
+                            alert(`⚠️ 동기화 실패: ${resData.message || '서버 오류가 발생했습니다.'}\n(설정(⚙️) 메뉴에서 Strava API 연동 토큰이 올바른지 확인해 주세요)`);
+                            location.reload();
+                        }
+                    } catch(e) {
+                        console.error("Sync error:", e);
+                        alert("⚠️ 로컬 동기화 서버와 통신할 수 없습니다. (서버가 실행 중인지 확인해 주세요)");
+                        location.reload();
+                    } finally {
+                        syncBtn.classList.remove('rotating');
+                    }
+                });
+            }
+
+            document.getElementById('evaluate-btn').addEventListener('click', () => runAIEvaluation(false));
             document.getElementById('reset-coaching-btn').addEventListener('click', resetToOriginalCoachRecommendation);
+
+            // 실시간 컨디션 피드백 연동
+            document.getElementById('cond-fatigue').addEventListener('change', () => {
+                saveStateToBackend();
+                runAIEvaluation(true);
+            });
+            document.getElementById('cond-pain').addEventListener('change', () => {
+                saveStateToBackend();
+                runAIEvaluation(true);
+            });
+            document.getElementById('cond-notes').addEventListener('change', () => {
+                saveStateToBackend();
+                runAIEvaluation(true);
+            });
         }
     </script>
 </body>
@@ -2152,6 +3128,7 @@ ${formattedPlan}
 
     # 안전하게 자리채움 문자열 교체 (Escaping 충돌 제로)
     html_content = html_template
+    html_content = html_content.replace("__WEEK_RANGE_STR__", week_range_str)
     html_content = html_content.replace("__NOW_STR__", now_str)
     html_content = html_content.replace("__TODAY_DATE__", today_date)
     html_content = html_content.replace("__TOTAL_MAY_MILEAGE__", str(stats["total_may_mileage"]))
@@ -2166,6 +3143,7 @@ ${formattedPlan}
     html_content = html_content.replace("__COACH_COMMENT_JSON__", coach_comment_json)
     html_content = html_content.replace("__NEXT_RUNNING_JSON__", next_running_json)
     html_content = html_content.replace("__CONDITION_JSON__", condition_json)
+    html_content = html_content.replace("__EXERCISE_LIBRARY_JSON__", exercise_library_json)
 
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
