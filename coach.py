@@ -2770,7 +2770,6 @@ def build_html_dashboard(stats, ai):
             saveStateToBackend();
         };
 
-        // 7. 각 티어별 인라인 운동 리스트 팝업 구성
         function setupAddExerciseLibrary() {
             const tiers = ["Base", "Workout", "Pre-Run"];
             
@@ -2778,14 +2777,12 @@ def build_html_dashboard(stats, ai):
                 const select = document.getElementById(`select-${tier}`);
                 if (!select) return;
                 
-                select.innerHTML = `<option value="">-- ${tier} 라이브러리 운동 선택 --</option>`;
+                select.innerHTML = `<option value="">-- 전체 라이브러리 운동 선택 --</option>`;
                 
-                EXERCISE_LIBRARY.filter(ex => ex.category === tier).forEach((ex, idx) => {
+                EXERCISE_LIBRARY.forEach((ex, idx) => {
                     const opt = document.createElement('option');
-                    // EXERCISE_LIBRARY 에서의 절대 인덱스 활용
-                    const globalIdx = EXERCISE_LIBRARY.findIndex(x => x.name === ex.name);
-                    opt.value = globalIdx;
-                    opt.textContent = `[${ex.target}] ${ex.name} (${ex.sets} x ${ex.reps})`;
+                    opt.value = idx;
+                    opt.textContent = `[${ex.category}] [${ex.target}] ${ex.name} (${ex.sets} x ${ex.reps})`;
                     select.appendChild(opt);
                 });
             });
