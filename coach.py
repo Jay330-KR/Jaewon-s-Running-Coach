@@ -1,5 +1,6 @@
 import os
 import json
+import calendar
 import requests
 import urllib.parse
 from datetime import datetime, timedelta, timezone
@@ -302,14 +303,19 @@ def get_demo_activities():
 # 4. 러닝 통계 분석 & QuickChart API 링크 생성
 def calculate_mileage_and_build_charts(activities):
     """활동 데이터를 바탕으로 통계 계산 및 QuickChart 차트 이미지 URL을 빌드합니다."""
-    may_activities = []
+    # 현재 달(now_dt 기준)을 동적으로 추적하여 매월 자동으로 롤오버되도록 처리
+    cur_year = now_dt.year
+    cur_month = now_dt.month
+    days_in_cur_month = calendar.monthrange(cur_year, cur_month)[1]
+
+    month_activities = []
     weekly_activities = []
 
     today_weekday_idx = now_dt.weekday()
     start_of_week = (now_dt - timedelta(days=today_weekday_idx)).replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_week = start_of_week + timedelta(days=7)
 
-    may_daily_mileage = [0.0] * 31
+    month_daily_mileage = [0.0] * days_in_cur_month
     weekly_daily_mileage = [0.0] * 7
 
     for act in activities:
@@ -318,15 +324,15 @@ def calculate_mileage_and_build_charts(activities):
             act_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         except Exception:
             continue
-        
+
         dist_km = round(act.get("distance", 0) / 1000.0, 2)
-        
-        if act_date.year == 2026 and act_date.month == 5:
-            may_activities.append(act)
+
+        if act_date.year == cur_year and act_date.month == cur_month:
+            month_activities.append(act)
             day_idx = act_date.day - 1
-            if 0 <= day_idx < 31:
-                may_daily_mileage[day_idx] += dist_km
-        
+            if 0 <= day_idx < days_in_cur_month:
+                month_daily_mileage[day_idx] += dist_km
+
         act_datetime = datetime.strptime(act.get("start_date_local")[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc).astimezone(kst)
         if start_of_week <= act_datetime < end_of_week:
             weekly_activities.append(act)
@@ -334,7 +340,7 @@ def calculate_mileage_and_build_charts(activities):
             if 0 <= w_day_idx < 7:
                 weekly_daily_mileage[w_day_idx] += dist_km
 
-    total_may_mileage = round(sum(may_daily_mileage), 1)
+    total_month_mileage = round(sum(month_daily_mileage), 1)
     total_weekly_mileage = round(sum(weekly_daily_mileage), 1)
 
     today_run = None
@@ -348,12 +354,12 @@ def calculate_mileage_and_build_charts(activities):
             yesterday_run = act
 
     # QuickChart URL-encoding
-    may_chart_payload = {
+    month_chart_payload = {
         "type": "bar",
         "data": {
-            "labels": [str(i) for i in range(1, 32)],
+            "labels": [str(i) for i in range(1, days_in_cur_month + 1)],
             "datasets": [{
-                "data": [round(val, 2) for val in may_daily_mileage],
+                "data": [round(val, 2) for val in month_daily_mileage],
                 "backgroundColor": "#FC4C02",
                 "borderRadius": 4,
                 "datalabels": {"display": False}
@@ -374,7 +380,7 @@ def calculate_mileage_and_build_charts(activities):
             }
         }
     }
-    may_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(may_chart_payload))}&format=png"
+    month_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(month_chart_payload))}&format=png"
 
     week_chart_payload = {
         "type": "bar",
@@ -411,13 +417,16 @@ def calculate_mileage_and_build_charts(activities):
     week_chart_url = f"https://quickchart.io/chart?c={urllib.parse.quote(json.dumps(week_chart_payload))}&format=png"
 
     return {
-        "total_may_mileage": total_may_mileage,
+        "total_month_mileage": total_month_mileage,
         "total_weekly_mileage": total_weekly_mileage,
-        "may_chart_url": may_chart_url,
+        "month_chart_url": month_chart_url,
         "week_chart_url": week_chart_url,
         "today_run": today_run,
         "yesterday_run": yesterday_run,
-        "may_activities": may_activities
+        "month_activities": month_activities,
+        "all_activities": activities,
+        "cur_year": cur_year,
+        "cur_month": cur_month
     }
 
 # 5. Gemini AI 통합 추론 파이프라인 (보강/스트레칭 3 Tier 및 피드백 루프 지원)
@@ -459,7 +468,7 @@ def get_ai_coaching_content(stats, condition, routines):
 
 투입 데이터:
 1. 최근 30일 스트라바 러닝 통계:
-   - 5월 누적 마일리지: {stats["total_may_mileage"]} km (목표: 200 km)
+   - 이번 달({stats["cur_month"]}월) 누적 마일리지: {stats["total_month_mileage"]} km (목표: 200 km)
    - 이번 주 누적 마일리지: {stats["total_weekly_mileage"]} km (목표: 50 km)
    - 오늘 수행한 러닝 실적: {run_info_str}
 2. 사용자 몸 상태 및 컨디션 (condition.txt):
@@ -619,14 +628,17 @@ def build_html_dashboard(stats, ai):
     week_range_str = f"({start_of_week.strftime('%-m.%-d')} ~ {end_of_week.strftime('%-m.%-d')})"
 
     stats_json = json.dumps({
-        "total_may_mileage": stats["total_may_mileage"],
+        "total_month_mileage": stats["total_month_mileage"],
         "total_weekly_mileage": stats["total_weekly_mileage"],
         "today_run": stats["today_run"],
         "yesterday_run": stats["yesterday_run"],
-        "may_activities": stats.get("may_activities", []),
+        "month_activities": stats.get("month_activities", []),
+        "all_activities": stats.get("all_activities", []),
+        "cur_year": stats.get("cur_year"),
+        "cur_month": stats.get("cur_month"),
         "today_date": today_date,
         "today_weekday_idx": now_dt.weekday(), # 0: Mon, ..., 6: Sun
-        "may_chart_url": stats["may_chart_url"],
+        "month_chart_url": stats["month_chart_url"],
         "week_chart_url": stats["week_chart_url"],
         "strava_client_id": STRAVA_CLIENT_ID or "",
         "strava_client_secret": STRAVA_CLIENT_SECRET or "",
@@ -799,6 +811,54 @@ def build_html_dashboard(stats, ai):
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        /* Month Navigation (월 이동 화살표) */
+        .month-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .month-section-head h2 {
+            margin-bottom: 0;
+        }
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .month-nav-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 58px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .month-arrow {
+            background: rgba(252, 76, 2, 0.12);
+            border: 1px solid rgba(252, 76, 2, 0.3);
+            color: var(--primary);
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, opacity 0.15s;
+        }
+        .month-arrow:hover:not(:disabled) {
+            background: rgba(252, 76, 2, 0.28);
+        }
+        .month-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
 
         /* Progress Card */
@@ -1765,17 +1825,24 @@ def build_html_dashboard(stats, ai):
 
         <!-- Section 1 & 2: Mileage Progress -->
         <section>
-            <h2>📈 Monthly Mileage (May)</h2>
+            <div class="month-section-head">
+                <h2>📈 Monthly Mileage</h2>
+                <div class="month-nav">
+                    <button class="month-arrow" id="mileage-prev" aria-label="이전 달">‹</button>
+                    <span class="month-nav-label" id="mileage-month-label">__CUR_MONTH_LABEL__</span>
+                    <button class="month-arrow" id="mileage-next" aria-label="다음 달">›</button>
+                </div>
+            </div>
             <div class="progress-card">
                 <div class="progress-header">
                     <span class="progress-title">목표 달성률</span>
-                    <span class="progress-value"><span id="may-mileage-val">__TOTAL_MAY_MILEAGE__</span> / 200 km</span>
+                    <span class="progress-value"><span id="month-mileage-val">__TOTAL_MONTH_MILEAGE__</span> / 200 km</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" id="may-progress-bar" style="width: __MAY_PROGRESS_PERCENT__%;"></div>
+                    <div class="progress-bar" id="month-progress-bar" style="width: __MONTH_PROGRESS_PERCENT__%;"></div>
                 </div>
                 <div class="chart-box">
-                    <img src="__MAY_CHART_URL__" alt="May Mileage Chart" />
+                    <img id="month-mileage-chart" src="__MONTH_CHART_URL__" alt="Monthly Mileage Chart" />
                 </div>
             </div>
 
@@ -1796,7 +1863,14 @@ def build_html_dashboard(stats, ai):
 
         <!-- Section 3: Monthly Heart Rate Zone Tracking (월간 존 트래킹) -->
         <section>
-            <h2>💓 Monthly Heart Rate Zone Tracking (월간 심박 존 분배)</h2>
+            <div class="month-section-head">
+                <h2>💓 Monthly HR Zone (월간 심박 존 분배)</h2>
+                <div class="month-nav">
+                    <button class="month-arrow" id="zone-prev" aria-label="이전 달">‹</button>
+                    <span class="month-nav-label" id="zone-month-label">__CUR_MONTH_LABEL__</span>
+                    <button class="month-arrow" id="zone-next" aria-label="다음 달">›</button>
+                </div>
+            </div>
             <div class="zone-tracking-card" id="zone-tracking-card-container">
                 <!-- JS로 동적 렌더링 -->
             </div>
@@ -1804,7 +1878,14 @@ def build_html_dashboard(stats, ai):
 
         <!-- Section 4: Monthly DB (월간 훈련 캘린더) -->
         <section>
-            <h2>📅 Monthly DB (월간 훈련 캘린더)</h2>
+            <div class="month-section-head">
+                <h2>📅 Monthly DB (월간 훈련 캘린더)</h2>
+                <div class="month-nav">
+                    <button class="month-arrow" id="cal-prev" aria-label="이전 달">‹</button>
+                    <span class="month-nav-label" id="cal-month-label">__CUR_MONTH_LABEL__</span>
+                    <button class="month-arrow" id="cal-next" aria-label="다음 달">›</button>
+                </div>
+            </div>
             <div class="calendar-card">
                 <div class="calendar-header-days">
                     <div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div><div>일</div>
@@ -2119,17 +2200,63 @@ def build_html_dashboard(stats, ai):
             }
         }
 
+        // 2.5 월간 데이터 공통 상태 & 헬퍼 (마일리지/심박존/캘린더 월 이동 지원)
+        const ALL_ACTIVITIES = (STATS_DATA.all_activities && STATS_DATA.all_activities.length)
+            ? STATS_DATA.all_activities
+            : (STATS_DATA.may_activities || []); // 구버전 데이터 호환
+        const TODAY_PARTS = (STATS_DATA.today_date || "2026-01-01").split("-").map(Number);
+        const CUR_YEAR = TODAY_PARTS[0];
+        const CUR_MONTH = TODAY_PARTS[1]; // 1-based
+
+        // 섹션별 독립 조회 상태 (현재 달로 초기화)
+        const mileageView = { y: CUR_YEAR, m: CUR_MONTH };
+        const zoneView = { y: CUR_YEAR, m: CUR_MONTH };
+        const calView = { y: CUR_YEAR, m: CUR_MONTH };
+
+        const ymPrefix = (y, m) => `${y}-${String(m).padStart(2, '0')}`;
+        const actsForMonth = (y, m) => ALL_ACTIVITIES.filter(a => a.start_date_local && a.start_date_local.startsWith(ymPrefix(y, m)));
+        const daysInMonth = (y, m) => new Date(y, m, 0).getDate(); // m: 1-based
+        const monthLabel = (y, m) => ymPrefix(y, m).replace('-', '.');
+        const isFutureMonth = (y, m) => (y > CUR_YEAR) || (y === CUR_YEAR && m > CUR_MONTH);
+        const stepMonth = (v, delta) => {
+            let mm = v.m + delta, yy = v.y;
+            while (mm < 1) { mm += 12; yy--; }
+            while (mm > 12) { mm -= 12; yy++; }
+            return { y: yy, m: mm };
+        };
+        // 미래 달로는 이동 불가하도록 next 버튼 활성/비활성 토글
+        function syncNavDisabled(nextBtnId, view) {
+            const n = stepMonth(view, 1);
+            const btn = document.getElementById(nextBtnId);
+            if (btn) btn.disabled = isFutureMonth(n.y, n.m);
+        }
+        // prev/next 화살표 1회 바인딩
+        function wireMonthNav(prevId, nextId, view, render) {
+            const prev = document.getElementById(prevId);
+            const next = document.getElementById(nextId);
+            if (prev) prev.addEventListener('click', () => { const n = stepMonth(view, -1); view.y = n.y; view.m = n.m; render(); });
+            if (next) next.addEventListener('click', () => {
+                const n = stepMonth(view, 1);
+                if (isFutureMonth(n.y, n.m)) return;
+                view.y = n.y; view.m = n.m; render();
+            });
+        }
+
         // 3. 초기화 실행
         document.addEventListener('DOMContentLoaded', () => {
             checkWeeklyReset();
             initAppState();
             renderSettingsModal();
             renderWeekPlanTable();
+            renderMileage();
             renderZoneTracking();
             renderCalendarDB();
             renderDailyRunning();
             renderRoutines();
             setupAddExerciseLibrary();
+            wireMonthNav('mileage-prev', 'mileage-next', mileageView, renderMileage);
+            wireMonthNav('zone-prev', 'zone-next', zoneView, renderZoneTracking);
+            wireMonthNav('cal-prev', 'cal-next', calView, renderCalendarDB);
             bindEvents();
         });
 
@@ -2268,17 +2395,72 @@ def build_html_dashboard(stats, ai):
             });
         }
 
-        // 4.1 Monthly Cardiac HR Zone Tracking 렌더러
+        // 4.0 Monthly Mileage 렌더러 (월 이동 지원, 차트 URL 클라이언트 생성)
+        function buildMileageChartUrl(daily) {
+            const cfg = {
+                type: "bar",
+                data: {
+                    labels: daily.map((_, i) => String(i + 1)),
+                    datasets: [{
+                        data: daily.map(v => Math.round(v * 100) / 100),
+                        backgroundColor: "#FC4C02",
+                        borderRadius: 4,
+                        datalabels: { display: false }
+                    }]
+                },
+                options: {
+                    title: { display: false },
+                    legend: { display: false },
+                    scales: {
+                        yAxes: [{
+                            ticks: { beginAtZero: true, max: 18, stepSize: 6, fontColor: "#888888" },
+                            gridLines: { color: "rgba(252, 76, 2, 0.15)", zeroLineColor: "rgba(252, 76, 2, 0.3)" }
+                        }],
+                        xAxes: [{
+                            ticks: { fontColor: "#888888", fontSize: 9 },
+                            gridLines: { display: false }
+                        }]
+                    }
+                }
+            };
+            return "https://quickchart.io/chart?c=" + encodeURIComponent(JSON.stringify(cfg)) + "&format=png";
+        }
+
+        function renderMileage() {
+            const { y, m } = mileageView;
+            const dim = daysInMonth(y, m);
+            const daily = Array(dim).fill(0);
+            actsForMonth(y, m).forEach(a => {
+                const d = parseInt((a.start_date_local || "").slice(8, 10), 10);
+                if (d >= 1 && d <= dim) daily[d - 1] += (a.distance || 0) / 1000;
+            });
+            const total = Math.round(daily.reduce((s, v) => s + v, 0) * 10) / 10;
+
+            const valEl = document.getElementById('month-mileage-val');
+            const barEl = document.getElementById('month-progress-bar');
+            const chartEl = document.getElementById('month-mileage-chart');
+            const labelEl = document.getElementById('mileage-month-label');
+            if (valEl) valEl.textContent = total.toFixed(1);
+            if (barEl) barEl.style.width = Math.min(total / 200 * 100, 100) + '%';
+            if (chartEl) chartEl.src = buildMileageChartUrl(daily);
+            if (labelEl) labelEl.textContent = monthLabel(y, m);
+            syncNavDisabled('mileage-next', mileageView);
+        }
+
+        // 4.1 Monthly Cardiac HR Zone Tracking 렌더러 (월 이동 지원)
         function renderZoneTracking() {
             const container = document.getElementById('zone-tracking-card-container');
             if (!container) return;
 
-            let zones = { z1: 0, z2: 0, z3: 0, z4: 0, z5: 0 };
-            const activities = STATS_DATA.may_activities || [];
+            const { y, m } = zoneView;
+            const labelEl = document.getElementById('zone-month-label');
+            if (labelEl) labelEl.textContent = monthLabel(y, m);
+            syncNavDisabled('zone-next', zoneView);
 
-            if (activities.length === 0) {
-                zones = { z1: 20, z2: 120, z3: 90, z4: 45, z5: 15 };
-            } else {
+            let zones = { z1: 0, z2: 0, z3: 0, z4: 0, z5: 0 };
+            const activities = actsForMonth(y, m);
+
+            {
                 activities.forEach(act => {
                     const durationMin = (act.moving_time || act.elapsed_time || 0) / 60;
                     const avgHR = act.average_heartrate;
@@ -2366,31 +2548,39 @@ def build_html_dashboard(stats, ai):
             `;
         }
 
-        // 4.2 Monthly DB 달력 렌더러
+        // 4.2 Monthly DB 달력 렌더러 (월 이동 지원)
         function renderCalendarDB() {
             const grid = document.getElementById('calendar-grid-container');
             if (!grid) return;
 
             grid.innerHTML = "";
-            const activities = STATS_DATA.may_activities || [];
-            
-            for (let i = 0; i < 4; i++) {
+            const { y, m } = calView;
+            const labelEl = document.getElementById('cal-month-label');
+            if (labelEl) labelEl.textContent = monthLabel(y, m);
+            syncNavDisabled('cal-next', calView);
+
+            const activities = actsForMonth(y, m);
+            const dim = daysInMonth(y, m);
+            // 1일의 요일을 월요일 기준 오프셋으로 변환 (JS getDay: 0=일 → 월요일 시작 그리드)
+            const firstOffset = (new Date(y, m - 1, 1).getDay() + 6) % 7;
+
+            for (let i = 0; i < firstOffset; i++) {
                 const emptyCell = document.createElement('div');
                 emptyCell.className = "calendar-day empty";
                 grid.appendChild(emptyCell);
             }
 
-            for (let day = 1; day <= 31; day++) {
-                const dateStr = `2026-05-${day.toString().padStart(2, '0')}`;
+            for (let day = 1; day <= dim; day++) {
+                const dateStr = `${ymPrefix(y, m)}-${day.toString().padStart(2, '0')}`;
                 const cell = document.createElement('div');
                 cell.className = "calendar-day";
-                
+
                 if (dateStr === STATS_DATA.today_date) {
                     cell.classList.add('today');
                 }
 
                 const dailyRuns = activities.filter(act => act.start_date_local && act.start_date_local.startsWith(dateStr));
-                
+
                 let dayContent = `<span class="day-number">${day}</span>`;
                 let runData = null;
 
@@ -2405,19 +2595,19 @@ def build_html_dashboard(stats, ai):
                 }
 
                 cell.innerHTML = dayContent;
-                cell.addEventListener('click', () => showCalendarDetails(day, dateStr, runData));
+                cell.addEventListener('click', () => showCalendarDetails(y, m, day, dateStr, runData));
                 grid.appendChild(cell);
             }
         }
 
-        function showCalendarDetails(dayNum, dateStr, run) {
+        function showCalendarDetails(year, month, dayNum, dateStr, run) {
             const panel = document.getElementById('calendar-details-panel');
             if (!panel) return;
 
             panel.style.display = "block";
             panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            const formattedDate = `2026년 5월 ${dayNum}일`;
+            const formattedDate = `${year}년 ${month}월 ${dayNum}일`;
             
             if (run) {
                 const distKm = (run.distance / 1000).toFixed(2);
@@ -3123,14 +3313,16 @@ ${formattedPlan}
 
     # 안전하게 자리채움 문자열 교체 (Escaping 충돌 제로)
     html_content = html_template
+    cur_month_label = f"{stats.get('cur_year', now_dt.year)}.{str(stats.get('cur_month', now_dt.month)).zfill(2)}"
     html_content = html_content.replace("__WEEK_RANGE_STR__", week_range_str)
     html_content = html_content.replace("__NOW_STR__", now_str)
     html_content = html_content.replace("__TODAY_DATE__", today_date)
-    html_content = html_content.replace("__TOTAL_MAY_MILEAGE__", str(stats["total_may_mileage"]))
+    html_content = html_content.replace("__CUR_MONTH_LABEL__", cur_month_label)
+    html_content = html_content.replace("__TOTAL_MONTH_MILEAGE__", str(stats["total_month_mileage"]))
     html_content = html_content.replace("__TOTAL_WEEKLY_MILEAGE__", str(stats["total_weekly_mileage"]))
-    html_content = html_content.replace("__MAY_PROGRESS_PERCENT__", str(min(int(stats["total_may_mileage"] / 200 * 100), 100)))
+    html_content = html_content.replace("__MONTH_PROGRESS_PERCENT__", str(min(int(stats["total_month_mileage"] / 200 * 100), 100)))
     html_content = html_content.replace("__WEEK_PROGRESS_PERCENT__", str(min(int(stats["total_weekly_mileage"] / 50 * 100), 100)))
-    html_content = html_content.replace("__MAY_CHART_URL__", stats["may_chart_url"])
+    html_content = html_content.replace("__MONTH_CHART_URL__", stats["month_chart_url"])
     html_content = html_content.replace("__WEEK_CHART_URL__", stats["week_chart_url"])
     html_content = html_content.replace("__WEEK_PLAN_JSON__", week_plan_json)
     html_content = html_content.replace("__ROUTINES_JSON__", routines_json)
