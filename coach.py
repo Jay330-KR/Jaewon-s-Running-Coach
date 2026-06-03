@@ -2706,7 +2706,7 @@ def build_html_dashboard(stats, ai):
             }
         }
 
-        function showCalendarDetails(year, month, dayNum, dateStr, run) {
+        async function showCalendarDetails(year, month, dayNum, dateStr, run) {
             const panel = document.getElementById('calendar-details-panel');
             if (!panel) return;
 
@@ -2714,7 +2714,7 @@ def build_html_dashboard(stats, ai):
             panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             const formattedDate = `${year}년 ${month}월 ${dayNum}일`;
-            
+
             if (run) {
                 const distKm = (run.distance / 1000).toFixed(2);
                 const durationMin = Math.round(run.moving_time / 60);
@@ -2722,13 +2722,7 @@ def build_html_dashboard(stats, ai):
                 const paceSec = Math.round(((durationMin / distKm) - paceMin) * 60);
                 const avgHR = run.average_heartrate ? `${Math.round(run.average_heartrate)} bpm` : "정보 없음";
                 const maxHR = run.max_heartrate ? `${Math.round(run.max_heartrate)} bpm` : "정보 없음";
-                
-                let customFeedback = "";
-                if (run.average_heartrate && run.average_heartrate >= 155) {
-                    customFeedback = "심박수가 다소 고강도 존에 오래 머물렀습니다. 다음 날은 보강 운동이나 완전 휴식을 통해 아킬레스건과 슬개건 등 관절 결합 조직을 이완시켜 주는 것을 강력하게 권장합니다.";
-                } else {
-                    customFeedback = "아주 훌륭한 심장 유산소 능동 제어 하에 잘 소화된 훈련입니다. 이 페이스와 균일한 스트로크를 유지하시면 2027년 3시간 30분 마라톤 도달을 위한 탄탄한 기초가 완성됩니다.";
-                }
+                const cadence = run.average_cadence ? `${Math.round(run.average_cadence * 2)} spm` : "정보 없음";
 
                 panel.innerHTML = `
                     <div class="details-title">
@@ -2752,11 +2746,12 @@ def build_html_dashboard(stats, ai):
                             <div class="details-label">평균/최대 심박</div>
                             <div class="details-val">${avgHR} / ${maxHR}</div>
                         </div>
+                        <div class="details-item">
+                            <div class="details-label">케이던스</div>
+                            <div class="details-val">${cadence}</div>
+                        </div>
                     </div>
-                    <div class="details-feedback">
-                        <strong>💡 AI 분석 피드백:</strong><br/>
-                        ${customFeedback}
-                    </div>
+                    <div id="cal-feedback-box"></div>
                 `;
             } else {
                 panel.innerHTML = `
@@ -2764,11 +2759,32 @@ def build_html_dashboard(stats, ai):
                         <span>📅 ${formattedDate} 일정</span>
                         <span style="font-size:10px; color:var(--text-muted);">러닝 기록 없음</span>
                     </div>
-                    <div style="font-size:11px; color:var(--text-muted); text-align:center; padding: 20px 0;">
-                        이 날은 완료된 Strava 러닝 로그가 없습니다.<br/>
-                        충분한 완전 휴식 및 하체 가동성 보강운동 세트를 권장하는 일정입니다. 🧘‍♂️
+                    <div style="font-size:11px; color:var(--text-muted); text-align:center; padding: 16px 0;">
+                        이 날은 완료된 Strava 러닝 로그가 없습니다. 🧘‍♂️
                     </div>
+                    <div id="cal-feedback-box"></div>
                 `;
+            }
+
+            // 내가 남긴 피드백 (백엔드 조회, 평가/별점은 표시하지 않음)
+            const fbBox = document.getElementById('cal-feedback-box');
+            try {
+                const r = await fetch(`${SUPA_FN}/day?date=${dateStr}`);
+                const d = await r.json();
+                const fb = d && d.feedback;
+                if (fb && (fb.comment || (fb.pain_areas && fb.pain_areas.length) || fb.perceived_intensity)) {
+                    const pains = (fb.pain_areas || []).join(", ") || "없음";
+                    fbBox.innerHTML = `
+                        <div class="details-feedback">
+                            <strong>📝 내가 남긴 피드백</strong><br/>
+                            체감 강도: ${fb.perceived_intensity || "-"} · 통증: ${pains}
+                            ${fb.comment ? `<br/>"${fb.comment}"` : ""}
+                        </div>`;
+                } else {
+                    fbBox.innerHTML = `<div class="details-feedback" style="color:var(--text-muted);">📝 이 날 남긴 피드백이 없습니다.</div>`;
+                }
+            } catch (e) {
+                if (fbBox) fbBox.innerHTML = "";
             }
         }
 
