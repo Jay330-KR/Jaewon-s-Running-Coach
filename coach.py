@@ -640,9 +640,10 @@ def build_html_dashboard(stats, ai):
         "today_weekday_idx": now_dt.weekday(), # 0: Mon, ..., 6: Sun
         "month_chart_url": stats["month_chart_url"],
         "week_chart_url": stats["week_chart_url"],
-        "strava_client_id": STRAVA_CLIENT_ID or "",
-        "strava_client_secret": STRAVA_CLIENT_SECRET or "",
-        "strava_refresh_token": STRAVA_REFRESH_TOKEN or ""
+        # 보안: Strava 시크릿/리프레시 토큰은 공개 프론트에 노출하지 않음 (백엔드 Supabase가 처리)
+        "strava_client_id": "",
+        "strava_client_secret": "",
+        "strava_refresh_token": ""
     }, ensure_ascii=False)
     coach_comment_json = json.dumps(ai["coach_comment"], ensure_ascii=False)
     next_running_json = json.dumps(ai["next_running"], ensure_ascii=False)
