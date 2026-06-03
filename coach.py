@@ -241,13 +241,13 @@ def get_strava_activities():
         token_data = token_res.json()
         access_token = token_data.get("access_token")
         
-        # 3단계: 최근 30일간의 액티비티 목록 조회
-        print("📥 [Strava] 최근 30일 활동 데이터 다운로드 중...")
+        # 3단계: 최근 120일간의 액티비티 목록 조회 (월 이동으로 이전 달까지 보려면 충분한 기간 필요)
+        print("📥 [Strava] 최근 120일 활동 데이터 다운로드 중...")
         activities_url = "https://www.strava.com/api/v3/athlete/activities"
-        # 30일 전 타임스탬프 계산
-        after_timestamp = int((datetime.now() - timedelta(days=30)).timestamp())
+        # 120일 전 타임스탬프 계산 (이전 달 데이터가 30일 창에서 밀려나는 문제 방지)
+        after_timestamp = int((datetime.now() - timedelta(days=120)).timestamp())
         headers = {"Authorization": f"Bearer {access_token}"}
-        params = {"after": after_timestamp, "per_page": 100}
+        params = {"after": after_timestamp, "per_page": 200}
         
         act_res = requests.get(activities_url, headers=headers, params=params)
         if act_res.status_code != 200:
