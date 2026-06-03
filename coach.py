@@ -869,6 +869,30 @@ def build_html_dashboard(stats, ai):
             margin-left: 4px;
         }
 
+        /* P5 위저드 (오늘의 코칭) */
+        .wizard-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+        .wiz-steps { display: flex; gap: 6px; margin-bottom: 14px; }
+        .wiz-dot { flex: 1; text-align: center; font-size: 11px; color: var(--text-muted); padding: 6px 2px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); cursor: pointer; user-select: none; }
+        .wiz-dot b { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; background: #333; color: #fff; align-items: center; justify-content: center; font-size: 10px; margin-right: 3px; }
+        .wiz-dot.active { color: #fff; border-color: var(--primary); background: rgba(252,76,2,0.12); }
+        .wiz-dot.active b { background: var(--primary); }
+        .wiz-dot.done b { background: #10b981; }
+        .wiz-body { min-height: 150px; }
+        .wiz-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
+        .wiz-nav .btn { flex: 1; }
+        .wiz-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+        .wiz-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .wiz-row span:first-child { color: var(--text-muted); white-space: nowrap; }
+        .wiz-row span:last-child { text-align: right; }
+        .wiz-comment { font-size: 12px; line-height: 1.6; color: #ddd; background: rgba(255,255,255,0.03); border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 8px; margin-top: 10px; white-space: pre-wrap; }
+        .wiz-stars { font-size: 22px; letter-spacing: 2px; color: var(--primary); }
+        .wiz-empty { text-align: center; color: var(--text-muted); font-size: 12px; padding: 34px 0; line-height: 1.7; }
+        .wiz-fb-label { font-size: 11px; font-weight: bold; color: var(--primary); margin: 12px 0 6px; }
+        .wiz-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .wiz-chip { font-size: 12px; padding: 6px 11px; border-radius: 20px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #ccc; cursor: pointer; user-select: none; }
+        .wiz-chip.sel { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .wiz-input { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 12px; margin-top: 4px; box-sizing: border-box; }
+
         /* Progress Card */
         .progress-card {
             background: var(--card-bg);
@@ -1931,89 +1955,18 @@ def build_html_dashboard(stats, ai):
 
         <!-- Section 6: 데일리 러닝 피드백 (Daily feedback, stats, comments, prev/upcoming & Condition Editor) -->
         <section>
-            <h2>🏃‍♂️ Daily Running Feedback (<span id="today-date-header">__TODAY_DATE__</span>)</h2>
-            
-            <!-- AI Coaching Loop Card -->
-            <div class="loop-card" style="margin-bottom: 15px;">
-                <div class="loop-step active">
-                    <div class="loop-step-title">1단계: 오늘 오후 권장 훈련 (AI Recommend)</div>
-                    <div class="loop-step-body" id="loop-recommend-title">로딩 중...</div>
-                    <div class="loop-step-desc" id="loop-recommend-desc">주간 계획표를 기반으로 한 코치 추천 훈련입니다.</div>
+            <h2>🏃 오늘의 코칭 <span id="wiz-date" style="font-size:12px;font-weight:normal;color:var(--text-muted);margin-left:6px;"></span></h2>
+            <div class="wizard-card">
+                <div class="wiz-steps">
+                    <div class="wiz-dot active" data-step="0"><b>1</b> 추천</div>
+                    <div class="wiz-dot" data-step="1"><b>2</b> 실적</div>
+                    <div class="wiz-dot" data-step="2"><b>3</b> 피드백</div>
+                    <div class="wiz-dot" data-step="3"><b>4</b> 다음</div>
                 </div>
-                <div class="loop-step" id="loop-step-strava">
-                    <div class="loop-step-title">2단계: 오늘 러닝 실적 연동 (Strava Run Sync)</div>
-                    <div class="loop-step-body" id="loop-strava-title">연동 대기 중</div>
-                    <div class="loop-step-desc" id="loop-strava-desc">러닝 실적이 자동으로 연동되면 녹색 활성 상태로 변경됩니다.</div>
-                </div>
-                <div class="loop-step" id="loop-step-analysis">
-                    <div class="loop-step-title">3단계: AI 피드백 & 다음 러닝 목표 (AI Analysis)</div>
-                    <div class="loop-step-body" id="loop-next-recommend-title">대기 중</div>
-                    <div class="loop-step-desc" id="loop-next-recommend-desc">달리기 기록 연동 완료 후 AI가 내일을 위한 최적의 훈련을 갱신합니다.</div>
-                </div>
-            </div>
-
-            <!-- Daily Running Stats Container -->
-            <div id="daily-running-container" style="margin-bottom: 15px;">
-                <!-- JS로 렌더링 -->
-            </div>
-
-            <!-- AI Coach Comment Box -->
-            <div class="coach-comment-box" style="margin-bottom: 15px;">
-                <div class="comment-header">📋 AI COACH'S COMMENT</div>
-                <div id="coach-comment-content">
-                    <!-- JS로 바인딩 -->
-                </div>
-            </div>
-
-            <!-- Previous Running (어제 실적 및 계획 대비 분석) -->
-            <div class="previous-recommend-box" id="previous-running-content" style="display: none; margin-bottom: 15px;">
-                <!-- JS로 바인딩 -->
-            </div>
-
-            <!-- Upcoming Running (내일 예정 훈련) -->
-            <div class="upcoming-recommend-box" id="next-running-content" style="margin-bottom: 15px;">
-                <!-- JS로 바인딩 -->
-            </div>
-
-            <!-- Condition Editor Inside Section 6 -->
-            <div class="condition-editor-card">
-                <div style="font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 8px;">🧠 몸 상태 정보 갱신</div>
-                <div class="input-group">
-                    <div class="input-item">
-                        <label for="cond-fatigue">피로도</label>
-                        <select id="cond-fatigue">
-                            <option value="하">하 (쾌조)</option>
-                            <option value="중">중 (약간 피로)</option>
-                            <option value="상">상 (강한 피로)</option>
-                        </select>
-                    </div>
-                    <div class="input-item">
-                        <label for="cond-pain">통증 부위</label>
-                        <select id="cond-pain">
-                            <option value="없음">없음 (양호)</option>
-                            <option value="발목">발목 통증</option>
-                            <option value="아킬레스건">아킬레스건</option>
-                            <option value="무릎">무릎 (슬개건)</option>
-                            <option value="허리/골반">허리 / 골반</option>
-                            <option value="종아리">종아리/정강이</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="notes-item" style="margin-bottom: 12px;">
-                    <label for="cond-notes">특이사항 및 메모</label>
-                    <input type="text" id="cond-notes" value="" placeholder="예: 어깨가 결림. 오늘은 가볍게 달릴 예정..." />
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn" id="evaluate-btn" style="flex: 3; margin-top: 0;">
-                        <span>✨ 수정 후 AI 코치 평가받기</span>
-                    </button>
-                    <button class="btn btn-secondary" id="reset-coaching-btn" style="flex: 1; margin-top: 0;" title="초기 코치 제안으로 되돌리기">
-                        <span>🔄 초기화</span>
-                    </button>
-                </div>
-                <div class="spinner-container" id="ai-loading">
-                    <div class="spinner"></div>
-                    <div class="spinner-text">AI 코치가 몸 상태를 고려하여 일정을 재구성하고 있습니다...</div>
+                <div id="wiz-body" class="wiz-body"><div class="wiz-empty">불러오는 중...</div></div>
+                <div class="wiz-nav">
+                    <button class="btn btn-secondary" id="wiz-prev" style="margin-top:0;">‹ 이전</button>
+                    <button class="btn" id="wiz-next" style="margin-top:0;">다음 ›</button>
                 </div>
             </div>
         </section>
@@ -2174,6 +2127,7 @@ def build_html_dashboard(stats, ai):
         };
 
         async function saveStateToBackend() {
+            if (!document.getElementById('cond-fatigue')) return; // 위저드로 교체된 경우 구 컨디션 에디터 없음
             const fatigue = document.getElementById('cond-fatigue').value;
             const pain = document.getElementById('cond-pain').value;
             const notes = document.getElementById('cond-notes').value;
@@ -2250,6 +2204,147 @@ def build_html_dashboard(stats, ai):
             });
         }
 
+        // ===== P5 위저드 (오늘의 코칭, Supabase 백엔드 연동) =====
+        const SUPA_FN = "https://lalqqtpvphijkaliiopl.supabase.co/functions/v1";
+        let wizStep = 0;
+        let wizData = null;
+        let wizFb = { intensity: null, pains: [], comment: "", nextRec: null };
+
+        async function initWizard() {
+            const body = document.getElementById('wiz-body');
+            if (!body) return;
+            document.getElementById('wiz-prev')?.addEventListener('click', () => { wizStep = Math.max(0, wizStep - 1); renderWizard(); });
+            document.getElementById('wiz-next')?.addEventListener('click', () => { wizStep = Math.min(3, wizStep + 1); renderWizard(); });
+            document.querySelectorAll('.wiz-dot').forEach(d => d.addEventListener('click', () => { wizStep = parseInt(d.dataset.step); renderWizard(); }));
+            await loadWizDay();
+        }
+
+        async function loadWizDay(query) {
+            const body = document.getElementById('wiz-body');
+            if (body) body.innerHTML = '<div class="wiz-empty">불러오는 중...</div>';
+            try {
+                const r = await fetch(`${SUPA_FN}/day${query || ''}`);
+                wizData = await r.json();
+            } catch (e) {
+                if (body) body.innerHTML = '<div class="wiz-empty">백엔드 연결 실패 😢<br>잠시 후 새로고침 해주세요.</div>';
+                return;
+            }
+            const dl = document.getElementById('wiz-date');
+            if (dl && wizData && wizData.date) dl.textContent = `(${wizData.date})`;
+            if (wizData && wizData.feedback) {
+                wizFb.intensity = wizData.feedback.perceived_intensity;
+                wizFb.pains = wizData.feedback.pain_areas || [];
+                wizFb.comment = wizData.feedback.comment || "";
+            }
+            renderWizard();
+        }
+
+        function wizStars(s) {
+            s = s || 0;
+            const full = Math.floor(s), half = (s - full) >= 0.5;
+            const h = "★".repeat(full) + (half ? "½" : "") + "☆".repeat(Math.max(0, 3 - full - (half ? 1 : 0)));
+            return `<span class="wiz-stars">${h}</span> <span style="font-size:12px;color:var(--text-muted)">${s}/3</span>`;
+        }
+
+        function wizCaptureComment() {
+            const c = document.getElementById('wiz-comment');
+            if (c) wizFb.comment = c.value;
+        }
+
+        function renderWizard() {
+            const body = document.getElementById('wiz-body');
+            if (!body) return;
+            document.querySelectorAll('.wiz-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.step) === wizStep));
+            let html = "";
+            if (wizStep === 0) {
+                const rec = wizData && wizData.recommendation;
+                if (!rec) html = '<div class="wiz-empty">아직 오늘 추천이 없습니다.<br>잠시 후 다시 시도해주세요.</div>';
+                else html = `
+                    <div class="wiz-title">${rec.workout_type}</div>
+                    <div class="wiz-row"><span>거리 / 시간</span><span>${rec.target_distance_km ?? '-'}km · ${rec.target_duration_min ?? '-'}분</span></div>
+                    <div class="wiz-row"><span>페이스</span><span>${rec.target_pace ?? '-'}</span></div>
+                    <div class="wiz-row"><span>심박</span><span>${rec.target_hr ?? '-'}</span></div>
+                    <div class="wiz-row"><span>구성</span><span>${rec.structure ?? '-'}</span></div>
+                    <div class="wiz-comment">🧠 ${rec.coach_comment ?? ''}</div>
+                    <button class="btn btn-secondary" id="wiz-pt" style="margin-top:10px;">🏋️ 오늘 PT 있음 → 러닝 가볍게로 다시 추천</button>`;
+            } else if (wizStep === 1) {
+                const run = wizData && wizData.run, st = wizData && wizData.strength, ev = wizData && wizData.evaluation;
+                if (!run && !st) html = '<div class="wiz-empty">오늘 운동 기록 대기 중 🕑<br>Strava에 업로드되면 자동으로 반영됩니다.</div>';
+                else {
+                    if (run) html = `
+                        <div class="wiz-title">${run.name} · ${(run.distance_m/1000).toFixed(1)}km</div>
+                        <div class="wiz-row"><span>페이스</span><span>${run.avg_pace ?? '-'}/km</span></div>
+                        <div class="wiz-row"><span>평균 / 최대 심박</span><span>${run.avg_hr ?? '-'} / ${run.max_hr ?? '-'} bpm</span></div>
+                        <div class="wiz-row"><span>케이던스</span><span>${run.avg_cadence_spm ?? '-'} spm</span></div>
+                        <div class="wiz-row"><span>시간</span><span>${Math.round((run.moving_time_s||0)/60)}분</span></div>`;
+                    else html = `
+                        <div class="wiz-title">${st.name} (보강/PT)</div>
+                        <div class="wiz-row"><span>시간</span><span>${Math.round((st.moving_time_s||0)/60)}분</span></div>`;
+                    if (ev) html += `
+                        <div style="text-align:center;margin:14px 0 4px;">${wizStars(ev.achievement_stars)}</div>
+                        <div class="wiz-comment">💬 ${ev.ai_feedback ?? ''}</div>`;
+                    else html += '<div class="wiz-empty" style="padding:14px 0;">평가 생성 중...</div>';
+                }
+            } else if (wizStep === 2) {
+                const intens = ["저", "중", "고"];
+                const pains = ["없음", "신스프린트", "무릎", "고관절", "발목", "아킬레스", "햄스트링", "기타"];
+                html = `
+                    <div class="wiz-fb-label">체감 강도</div>
+                    <div class="wiz-chips" id="wiz-intens">${intens.map(x => `<div class="wiz-chip ${wizFb.intensity === x ? 'sel' : ''}" data-v="${x}">${x}</div>`).join('')}</div>
+                    <div class="wiz-fb-label">통증 부위 (복수 선택)</div>
+                    <div class="wiz-chips" id="wiz-pains">${pains.map(x => `<div class="wiz-chip ${wizFb.pains.includes(x) ? 'sel' : ''}" data-v="${x}">${x}</div>`).join('')}</div>
+                    <div class="wiz-fb-label">한 줄 메모</div>
+                    <input class="wiz-input" id="wiz-comment" placeholder="오늘 컨디션·느낀 점..." value="${(wizFb.comment || '').replace(/"/g, '&quot;')}">
+                    <button class="btn" id="wiz-submit" style="margin-top:14px;">제출하고 내일 추천 받기 ›</button>
+                    <div id="wiz-submit-msg" style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px;"></div>`;
+            } else {
+                const nr = wizFb.nextRec;
+                if (!nr) html = '<div class="wiz-empty">3단계에서 피드백을 제출하면<br>내일 추천이 여기에 표시됩니다.</div>';
+                else html = `
+                    <div class="wiz-title">내일: ${nr.workout_type}</div>
+                    <div class="wiz-row"><span>거리 / 시간</span><span>${nr.target_distance_km ?? '-'}km · ${nr.target_duration_min ?? '-'}분</span></div>
+                    <div class="wiz-row"><span>페이스</span><span>${nr.target_pace ?? '-'}</span></div>
+                    <div class="wiz-comment">🧠 ${nr.coach_comment ?? ''}</div>`;
+            }
+            body.innerHTML = html;
+            bindWizStep();
+        }
+
+        function bindWizStep() {
+            document.getElementById('wiz-pt')?.addEventListener('click', () => loadWizDay('?regen=1&pt_today=1'));
+            document.querySelectorAll('#wiz-intens .wiz-chip').forEach(c => c.addEventListener('click', () => {
+                wizCaptureComment(); wizFb.intensity = c.dataset.v; renderWizard();
+            }));
+            document.querySelectorAll('#wiz-pains .wiz-chip').forEach(c => c.addEventListener('click', () => {
+                wizCaptureComment();
+                const v = c.dataset.v;
+                if (v === "없음") wizFb.pains = ["없음"];
+                else {
+                    wizFb.pains = wizFb.pains.filter(p => p !== "없음");
+                    wizFb.pains = wizFb.pains.includes(v) ? wizFb.pains.filter(p => p !== v) : wizFb.pains.concat(v);
+                }
+                renderWizard();
+            }));
+            document.getElementById('wiz-submit')?.addEventListener('click', wizSubmit);
+        }
+
+        async function wizSubmit() {
+            const msg = document.getElementById('wiz-submit-msg');
+            wizCaptureComment();
+            if (msg) msg.textContent = "제출 중...";
+            try {
+                const r = await fetch(`${SUPA_FN}/feedback`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ date: wizData.date, perceived_intensity: wizFb.intensity, pain_areas: wizFb.pains.length ? wizFb.pains : ["없음"], comment: wizFb.comment })
+                });
+                const j = await r.json();
+                wizFb.nextRec = j.next_recommendation;
+                wizStep = 3; renderWizard();
+            } catch (e) {
+                if (msg) msg.textContent = "제출 실패. 다시 시도해주세요.";
+            }
+        }
+
         // 3. 초기화 실행
         document.addEventListener('DOMContentLoaded', () => {
             checkWeeklyReset();
@@ -2266,6 +2361,7 @@ def build_html_dashboard(stats, ai):
             wireMonthNav('zone-prev', 'zone-next', zoneView, renderZoneTracking);
             wireMonthNav('cal-prev', 'cal-next', calView, renderCalendarDB);
             bindEvents();
+            initWizard();
         });
 
         // Sunday 11:00 PM KST reset checker
@@ -2346,9 +2442,11 @@ def build_html_dashboard(stats, ai):
             }
 
             // 몸 상태 UI 세팅
-            document.getElementById('cond-fatigue').value = CONDITION_DATA.피로도 || "하";
-            document.getElementById('cond-pain').value = CONDITION_DATA.통증 || "없음";
-            document.getElementById('cond-notes').value = CONDITION_DATA.기타 || "";
+            if (document.getElementById('cond-fatigue')) {
+                document.getElementById('cond-fatigue').value = CONDITION_DATA.피로도 || "하";
+                document.getElementById('cond-pain').value = CONDITION_DATA.통증 || "없음";
+                document.getElementById('cond-notes').value = CONDITION_DATA.기타 || "";
+            }
         }
 
         // 4. Weekly Plan 테이블 렌더러
@@ -3094,6 +3192,7 @@ def build_html_dashboard(stats, ai):
                 return;
             }
 
+            if (!document.getElementById('cond-fatigue')) return; // 위저드로 교체됨: 구 AI 평가 비활성
             const evaluateBtn = document.getElementById('evaluate-btn');
             const loading = document.getElementById('ai-loading');
             const commentBox = document.getElementById('coach-comment-content');
@@ -3298,19 +3397,19 @@ ${formattedPlan}
                 });
             }
 
-            document.getElementById('evaluate-btn').addEventListener('click', () => runAIEvaluation(false));
-            document.getElementById('reset-coaching-btn').addEventListener('click', resetToOriginalCoachRecommendation);
+            document.getElementById('evaluate-btn')?.addEventListener('click', () => runAIEvaluation(false));
+            document.getElementById('reset-coaching-btn')?.addEventListener('click', resetToOriginalCoachRecommendation);
 
-            // 실시간 컨디션 피드백 연동
-            document.getElementById('cond-fatigue').addEventListener('change', () => {
+            // 실시간 컨디션 피드백 연동 (구 컨디션 에디터가 있을 때만)
+            document.getElementById('cond-fatigue')?.addEventListener('change', () => {
                 saveStateToBackend();
                 runAIEvaluation(true);
             });
-            document.getElementById('cond-pain').addEventListener('change', () => {
+            document.getElementById('cond-pain')?.addEventListener('change', () => {
                 saveStateToBackend();
                 runAIEvaluation(true);
             });
-            document.getElementById('cond-notes').addEventListener('change', () => {
+            document.getElementById('cond-notes')?.addEventListener('change', () => {
                 saveStateToBackend();
                 runAIEvaluation(true);
             });
