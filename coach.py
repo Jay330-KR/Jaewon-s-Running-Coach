@@ -219,6 +219,8 @@ def get_strava_activities():
 
     # 1단계: API 연동 정보가 없으면 로컬 캐시 또는 데모 데이터 활용
     if not STRAVA_CLIENT_ID or not STRAVA_CLIENT_SECRET or not STRAVA_REFRESH_TOKEN:
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            raise SystemExit("❌ [Strava] CI에서 API 키 누락 — 데모 데이터로 실데이터를 덮지 않도록 빌드를 중단합니다.")
         print("⚠️ [Strava] API 설정 정보(.env)가 부족합니다. Fallback 데모 데이터를 로드합니다.")
         return get_demo_activities()
 
@@ -277,6 +279,9 @@ def load_cached_activities(cache_path):
                 return json.load(f)
         except:
             pass
+    # CI에서 실데이터 조회 실패 + 캐시도 없으면, 데모로 덮어쓰지 말고 빌드 중단 (마지막 정상 배포 유지)
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        raise SystemExit("❌ [Strava] CI에서 실데이터 조회 실패 + 캐시 없음 — 데모로 덮지 않도록 빌드를 중단합니다.")
     return get_demo_activities()
 
 def get_demo_activities():
