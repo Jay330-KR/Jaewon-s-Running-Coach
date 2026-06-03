@@ -893,6 +893,7 @@ def build_html_dashboard(stats, ai):
         .wiz-chip { font-size: 12px; padding: 6px 11px; border-radius: 20px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: #ccc; cursor: pointer; user-select: none; }
         .wiz-chip.sel { background: var(--primary); color: #fff; border-color: var(--primary); }
         .wiz-input { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 12px; margin-top: 4px; box-sizing: border-box; }
+        .week-type-select { width: 95%; padding: 6px 6px; border-radius: 6px; border: 1px solid var(--border); background: #1a1a1a; color: #fff; font-size: 12px; cursor: pointer; }
 
         /* Progress Card */
         .progress-card {
@@ -1940,15 +1941,13 @@ def build_html_dashboard(stats, ai):
                 <table class="week-table" id="week-plan-table">
                     <thead>
                         <tr style="border-bottom:1px solid #444; color: var(--primary);">
-                            <th style="width: 15%;">요일</th>
-                            <th style="width: 25%;">타입</th>
-                            <th style="width: 20%;">시간(분)</th>
-                            <th style="width: 20%;">페이스</th>
-                            <th style="width: 20%;">심박</th>
+                            <th style="width: 25%;">요일</th>
+                            <th style="width: 25%;">날짜</th>
+                            <th style="width: 50%;">타입</th>
                         </tr>
                     </thead>
                     <tbody id="week-plan-tbody">
-                        <!-- JS로 렌더링 -->
+                        <!-- JS로 렌더링 (백엔드 weekplan 연동) -->
                     </tbody>
                 </table>
             </div>
@@ -2451,53 +2450,46 @@ def build_html_dashboard(stats, ai):
         }
 
         // 4. Weekly Plan 테이블 렌더러
-        function renderWeekPlanTable() {
+        // 주간 러닝 계획 (백엔드 weekplan 연동, 타입 드롭다운)
+        const WEEKPLAN_TYPES = ["이지", "롱런", "역치", "인터벌", "휴식", "보강", "PT", "PT+셰이크아웃", "보강+셰이크아웃"];
+        async function renderWeekPlanTable() {
             const tbody = document.getElementById('week-plan-tbody');
             if (!tbody) return;
-
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:14px;">불러오는 중...</td></tr>`;
+            let week = [];
+            try {
+                const r = await fetch(`${SUPA_FN}/weekplan`);
+                week = (await r.json()).week || [];
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:14px;">주간계획 불러오기 실패</td></tr>`;
+                return;
+            }
+            const days = ["월", "화", "수", "목", "금", "토", "일"];
+            const today = STATS_DATA.today_date;
             tbody.innerHTML = "";
-            const todayIdx = STATS_DATA.today_weekday_idx;
-
-            appState.weekPlan.forEach((plan, index) => {
+            week.forEach((row, i) => {
                 const tr = document.createElement('tr');
-                if (index === todayIdx) {
-                    tr.classList.add('active-today');
-                }
-
-                const isTodayLabel = index === todayIdx ? `${plan.day} (오늘)` : plan.day;
-                const fontStyle = index === todayIdx ? 'font-weight: bold; color: var(--primary);' : 'font-weight: bold;';
-
+                const isToday = row.date === today;
+                if (isToday) tr.classList.add('active-today');
+                const dayLabel = isToday ? `${days[i]} (오늘)` : days[i];
+                const md = row.date ? row.date.slice(5).replace('-', '.') : '';
+                const opts = WEEKPLAN_TYPES.map(t => `<option value="${t}" ${row.plan_type === t ? 'selected' : ''}>${t}</option>`).join('');
                 tr.innerHTML = `
-                    <td style="padding: 8px 4px; ${fontStyle}">${isTodayLabel}</td>
-                    <td>
-                        <input type="text" value="${plan.type || '-'}" class="week-edit-input" data-idx="${index}" data-field="type" />
-                    </td>
-                    <td>
-                        <input type="text" value="${plan.duration || '-'}" class="week-edit-input" data-idx="${index}" data-field="duration" style="width: 90%; text-align: center;" />
-                    </td>
-                    <td>
-                        <input type="text" value="${plan.pace || '-'}" class="week-edit-input" data-idx="${index}" data-field="pace" style="width: 90%; text-align: center;" />
-                    </td>
-                    <td>
-                        <input type="text" value="${plan.hr || '-'}" class="week-edit-input" data-idx="${index}" data-field="hr" style="width: 90%; text-align: center;" />
-                    </td>
+                    <td style="padding:8px 4px; font-weight:bold; ${isToday ? 'color:var(--primary);' : ''}">${dayLabel}</td>
+                    <td style="font-size:11px; color:var(--text-muted);">${md}</td>
+                    <td><select class="week-type-select" data-date="${row.date}">${opts}</select></td>
                 `;
                 tbody.appendChild(tr);
             });
-
-            // 입력 이벤트 바인딩
-            tbody.querySelectorAll('.week-edit-input').forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const idx = e.target.dataset.idx;
-                    const field = e.target.dataset.field;
-                    appState.weekPlan[idx][field] = e.target.value;
-                    localStorage.setItem('project330_week_plan', JSON.stringify(appState.weekPlan));
-                    
-                    if (parseInt(idx) === todayIdx) {
-                        renderDailyRunning();
-                    }
-                    saveStateToBackend();
-                    runAIEvaluation(true);
+            tbody.querySelectorAll('.week-type-select').forEach(sel => {
+                sel.addEventListener('change', async (e) => {
+                    const date = e.target.dataset.date;
+                    const plan_type = e.target.value;
+                    try {
+                        await fetch(`${SUPA_FN}/weekplan`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "set", date, plan_type }) });
+                        // 오늘 날짜를 바꿨으면 위저드 추천도 즉시 갱신
+                        if (date === STATS_DATA.today_date && typeof loadWizDay === "function") loadWizDay('?regen=1');
+                    } catch (_) {}
                 });
             });
         }
