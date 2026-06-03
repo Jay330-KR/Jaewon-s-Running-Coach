@@ -861,6 +861,14 @@ def build_html_dashboard(stats, ai):
             cursor: not-allowed;
         }
 
+        /* HR Zone bpm 범위 라벨 */
+        .zone-hr {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 11px;
+            margin-left: 4px;
+        }
+
         /* Progress Card */
         .progress-card {
             background: var(--card-bg);
@@ -2502,7 +2510,7 @@ def build_html_dashboard(stats, ai):
             container.innerHTML = `
                 <div class="zone-bar-row">
                     <div class="zone-label-group">
-                        <span class="zone-name" style="color: #ef4444;">Zone 5 (무산소 / 고강도 인터벌)</span>
+                        <span class="zone-name" style="color: #ef4444;">Zone 5 (무산소 / 고강도 인터벌) <span class="zone-hr">165+ bpm</span></span>
                         <span class="zone-percentage">${pct(zones.z5)}% (${Math.round(zones.z5)}분)</span>
                     </div>
                     <div class="zone-progress-bg">
@@ -2511,7 +2519,7 @@ def build_html_dashboard(stats, ai):
                 </div>
                 <div class="zone-bar-row">
                     <div class="zone-label-group">
-                        <span class="zone-name" style="color: #f97316;">Zone 4 (젖산역치 / 페이스주)</span>
+                        <span class="zone-name" style="color: #f97316;">Zone 4 (젖산역치 / 페이스주) <span class="zone-hr">150–164 bpm</span></span>
                         <span class="zone-percentage">${pct(zones.z4)}% (${Math.round(zones.z4)}분)</span>
                     </div>
                     <div class="zone-progress-bg">
@@ -2520,7 +2528,7 @@ def build_html_dashboard(stats, ai):
                 </div>
                 <div class="zone-bar-row">
                     <div class="zone-label-group">
-                        <span class="zone-name" style="color: #eab308;">Zone 3 (유산소 템포 / 빌드업)</span>
+                        <span class="zone-name" style="color: #eab308;">Zone 3 (유산소 템포 / 빌드업) <span class="zone-hr">140–149 bpm</span></span>
                         <span class="zone-percentage">${pct(zones.z3)}% (${Math.round(zones.z3)}분)</span>
                     </div>
                     <div class="zone-progress-bg">
@@ -2529,7 +2537,7 @@ def build_html_dashboard(stats, ai):
                 </div>
                 <div class="zone-bar-row">
                     <div class="zone-label-group">
-                        <span class="zone-name" style="color: #10b981;">Zone 2 (기초 유산소 / 이지 조깅)</span>
+                        <span class="zone-name" style="color: #10b981;">Zone 2 (기초 유산소 / 이지 조깅) <span class="zone-hr">130–139 bpm</span></span>
                         <span class="zone-percentage">${pct(zones.z2)}% (${Math.round(zones.z2)}분)</span>
                     </div>
                     <div class="zone-progress-bg">
@@ -2538,7 +2546,7 @@ def build_html_dashboard(stats, ai):
                 </div>
                 <div class="zone-bar-row">
                     <div class="zone-label-group">
-                        <span class="zone-name" style="color: #3b82f6;">Zone 1 (회복 러닝 / 웜업)</span>
+                        <span class="zone-name" style="color: #3b82f6;">Zone 1 (회복 러닝 / 웜업) <span class="zone-hr">&lt;130 bpm</span></span>
                         <span class="zone-percentage">${pct(zones.z1)}% (${Math.round(zones.z1)}분)</span>
                     </div>
                     <div class="zone-progress-bg">
