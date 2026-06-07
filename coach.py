@@ -338,8 +338,8 @@ def calculate_mileage_and_build_charts(activities):
             if 0 <= day_idx < days_in_cur_month:
                 month_daily_mileage[day_idx] += dist_km
 
-        act_datetime = datetime.strptime(act.get("start_date_local")[:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc).astimezone(kst)
-        if start_of_week <= act_datetime < end_of_week:
+        act_datetime = datetime.strptime(act.get("start_date_local")[:19], "%Y-%m-%dT%H:%M:%S")
+        if start_of_week.replace(tzinfo=None) <= act_datetime < end_of_week.replace(tzinfo=None):
             weekly_activities.append(act)
             w_day_idx = act_datetime.weekday()
             if 0 <= w_day_idx < 7:
