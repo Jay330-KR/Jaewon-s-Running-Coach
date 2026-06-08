@@ -7,6 +7,8 @@ on:
   schedule:
     - cron: '*/10 * * * *'
   workflow_dispatch:
+  repository_dispatch:          # ★추가
+    types: [strava_activity]    # ★추가
 
 jobs:
   build:
